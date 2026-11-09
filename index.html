@@ -173,23 +173,6 @@
             -webkit-text-fill-color: transparent;
         }
 
-        .auth-nav-tabs {
-            display: flex; background: rgba(255, 243, 245, 0.7);
-            border-radius: var(--radius-full); padding: 4px;
-            border: 1px solid var(--border-soft); margin: 26px 0 20px 0;
-        }
-
-        .auth-tab-btn {
-            flex: 1; border: none; background: transparent; padding: 9px 0;
-            border-radius: var(--radius-full); font-size: 0.84rem; font-weight: 600;
-            color: var(--text-muted); cursor: pointer; transition: var(--transition);
-        }
-
-        .auth-tab-btn.active {
-            background: var(--rose-gradient); color: #FFFFFF;
-            box-shadow: 0 4px 12px rgba(184, 95, 115, 0.3);
-        }
-
         .auth-form { text-align: left; }
         .auth-input-group { margin-bottom: 16px; }
 
@@ -198,13 +181,13 @@
             color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px;
         }
 
-        .auth-input-group input {
+        .auth-input-group input, .auth-input-group select {
             width: 100%; padding: 12px 16px; border-radius: var(--radius-sm);
             border: 1.5px solid var(--border-soft); background: #FFFFFF;
             font-size: 0.92rem; color: var(--text-title); outline: none; transition: var(--transition);
         }
 
-        .auth-input-group input:focus {
+        .auth-input-group input:focus, .auth-input-group select:focus {
             border-color: var(--rose-300);
             box-shadow: 0 0 0 4px rgba(234, 164, 178, 0.18);
         }
@@ -459,23 +442,18 @@
 </head>
 <body>
 
-    <!-- TELA DE LOGIN & CADASTRO -->
+    <!-- TELA DE LOGIN (SEM CADASTRO) -->
     <div id="auth-screen" class="auth-wrapper">
         <div class="auth-card">
             <div class="auth-emblem">
                 <span class="auth-emblem-text">I</span>
             </div>
 
-            <div class="clinic-brand-logo">
+            <div class="clinic-brand-logo" style="margin-bottom: 28px;">
                 <div class="brand-logo-title">ISADORA</div>
                 <div class="brand-logo-tagline">
                     <span>Estética e Saúde</span>
                 </div>
-            </div>
-
-            <div class="auth-nav-tabs">
-                <button type="button" class="auth-tab-btn active" id="tab-btn-login" onclick="switchAuthTab('login')">Entrar</button>
-                <button type="button" class="auth-tab-btn" id="tab-btn-register" onclick="switchAuthTab('register')">Cadastrar</button>
             </div>
 
             <div id="auth-alert" class="auth-alert"></div>
@@ -491,24 +469,6 @@
                 </div>
                 <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px; justify-content: center;">
                     <span>✨</span> Acessar Painel
-                </button>
-            </form>
-
-            <form id="form-register" class="auth-form" style="display: none;" onsubmit="fazerCadastro(event)">
-                <div class="auth-input-group">
-                    <label>Seu Nome Completo</label>
-                    <input type="text" id="reg-nome" placeholder="Ex: Isadora Silva" required>
-                </div>
-                <div class="auth-input-group">
-                    <label>E-mail de Acesso</label>
-                    <input type="email" id="reg-email" placeholder="seuemail@exemplo.com" required autocomplete="username">
-                </div>
-                <div class="auth-input-group">
-                    <label>Criar Senha (mín. 6 dígitos)</label>
-                    <input type="password" id="reg-pass" placeholder="Crie sua senha" required minlength="6" autocomplete="new-password">
-                </div>
-                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px; justify-content: center;">
-                    <span>🌸</span> Criar Minha Conta
                 </button>
             </form>
         </div>
@@ -599,7 +559,7 @@
                     <div class="table-responsive">
                         <table>
                             <thead>
-                                <tr><th>Paciente</th><th>Procedimento Anterior</th><th>Última Sessão</th><th>Tempo Decorrido</th><th>Ação Recomendada</th></tr>
+                                <tr><th>Paciente</th><th>Procedimento Anterior</th><th>Última Sessão</th><th>Tempo Decorrido</th><th>Ação Recomendada</th><th>Edição</th></tr>
                             </thead>
                             <tbody id="lista-alertas-retorno"></tbody>
                         </table>
@@ -614,7 +574,7 @@
                     <div class="table-responsive">
                         <table>
                             <thead>
-                                <tr><th>Data</th><th>Paciente</th><th>Procedimento</th><th>Valor</th><th>Pagamento</th><th>Status</th></tr>
+                                <tr><th>Data</th><th>Paciente</th><th>Procedimento</th><th>Valor</th><th>Pagamento</th><th>Status & Edição</th></tr>
                             </thead>
                             <tbody id="resumo-ultimos-servicos"></tbody>
                         </table>
@@ -842,6 +802,53 @@
         </div>
     </div>
 
+    <!-- MODAL: EDITAR SERVIÇO / AGENDAMENTO -->
+    <div class="modal-overlay" id="modal-editar-servico" onclick="fecharModalEditarServico(event)">
+        <div class="modal-content" style="max-width: 520px;" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div>
+                    <h3>✏️ Editar Agendamento</h3>
+                </div>
+                <button class="btn-icon-soft" onclick="fecharModalEditarServicoDirect()">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-editar-servico" onsubmit="salvarEdicaoServico(event)">
+                    <input type="hidden" id="edit-servico-id">
+                    <div class="auth-input-group">
+                        <label>Paciente</label>
+                        <input type="text" id="edit-servico-cliente" class="form-control" required>
+                    </div>
+                    <div class="auth-input-group">
+                        <label>Procedimento</label>
+                        <input type="text" id="edit-servico-procedimento" class="form-control" required>
+                    </div>
+                    <div class="auth-input-group">
+                        <label>Data & Hora</label>
+                        <input type="datetime-local" id="edit-servico-data" class="form-control" required>
+                    </div>
+                    <div class="auth-input-group">
+                        <label>Valor (R$)</label>
+                        <input type="number" step="0.01" id="edit-servico-valor" class="form-control" required>
+                    </div>
+                    <div class="auth-input-group">
+                        <label>Forma de Pagamento</label>
+                        <select id="edit-servico-pagamento" class="form-control" required>
+                            <option value="Pix">Pix</option>
+                            <option value="Cartão de Crédito">Cartão de Crédito</option>
+                            <option value="Cartão de Débito">Cartão de Débito</option>
+                            <option value="Dinheiro">Dinheiro</option>
+                            <option value="A Definir">A Definir / Pendente</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px;">
+                        <button type="button" class="btn-secondary" onclick="fecharModalEditarServicoDirect()">Cancelar</button>
+                        <button type="submit" class="btn-primary"><span>💾</span> Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL ANAMNESE COMPLETA -->
     <div class="modal-overlay" id="modal-anamnese" onclick="fecharModalAnamnese(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
@@ -964,13 +971,6 @@
         let filtroAgendaAtual = 'todos';
 
         // AUTH
-        function switchAuthTab(tab) {
-            document.getElementById('tab-btn-login').classList.toggle('active', tab === 'login');
-            document.getElementById('tab-btn-register').classList.toggle('active', tab === 'register');
-            document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
-            document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
-        }
-
         function fazerLogin(e) {
             e.preventDefault();
             let email = document.getElementById('login-user').value.trim();
@@ -982,34 +982,6 @@
                 alertBox.innerText = "Erro ao entrar: Verifique seu e-mail e senha.";
                 alertBox.className = "auth-alert error";
             });
-        }
-
-        function fazerCadastro(e) {
-            e.preventDefault();
-            const nome = document.getElementById('reg-nome').value.trim();
-            const email = document.getElementById('reg-email').value.trim();
-            const pass = document.getElementById('reg-pass').value;
-
-            auth.createUserWithEmailAndPassword(email, pass)
-                .then(cred => {
-                    return Promise.all([
-                        cred.user.updateProfile({ displayName: nome }),
-                        db.collection('usuarios').doc(cred.user.uid).set({
-                            nome: nome,
-                            email: email,
-                            criadoEm: new Date()
-                        })
-                    ]);
-                })
-                .then(() => {
-                    document.getElementById('auth-alert').className = "auth-alert success";
-                    document.getElementById('auth-alert').innerText = "Conta criada com sucesso!";
-                })
-                .catch(err => {
-                    const alertBox = document.getElementById('auth-alert');
-                    alertBox.innerText = err.message;
-                    alertBox.className = "auth-alert error";
-                });
         }
 
         function fazerLogout() { auth.signOut(); }
@@ -1180,6 +1152,10 @@
 
             concluidos.forEach(s => {
                 const dataServ = new Date(s.data);
+                
+                // Validação para evitar datas bizarras (como ano 226)
+                if (isNaN(dataServ.getTime()) || dataServ.getFullYear() < 2000) return;
+
                 const diffDias = Math.floor((hoje - dataServ) / (1000 * 60 * 60 * 24));
 
                 if (diffDias >= 90) {
@@ -1189,6 +1165,7 @@
                     const zapUrl = tel ? `https://wa.me/55${tel}?text=${encodeURIComponent(zapMsg)}` : '#';
 
                     alertas.push({
+                        id: s.id,
                         cliente: s.cliente,
                         procedimento: s.procedimento,
                         data: dataServ.toLocaleDateString('pt-BR'),
@@ -1199,7 +1176,7 @@
             });
 
             if (alertas.length === 0) {
-                listaRetornoTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px; color:var(--text-muted);">Nenhuma paciente precisando de retorno no momento.</td></tr>`;
+                listaRetornoTbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 20px; color:var(--text-muted);">Nenhuma paciente precisando de retorno no momento.</td></tr>`;
             } else {
                 listaRetornoTbody.innerHTML = alertas.map(a => `
                     <tr>
@@ -1208,6 +1185,7 @@
                         <td>${a.data}</td>
                         <td><span class="tag tag-warning">Há ${a.dias} dias</span></td>
                         <td><a href="${a.zapUrl}" target="_blank" class="btn-whatsapp-small">💬 Chamar p/ Retoque</a></td>
+                        <td><button class="btn-secondary" style="padding: 4px 8px; font-size: 0.7rem;" onclick="abrirEditarServico('${a.id}')">✏️ Editar</button></td>
                     </tr>
                 `).join('');
             }
@@ -1271,6 +1249,42 @@
                 pagamento: document.getElementById('agenda-pagamento').value,
                 status: 'Agendado'
             }).then(() => e.target.reset());
+        }
+        
+        function abrirEditarServico(id) {
+            const s = todosServicosCache.find(serv => serv.id === id);
+            if (!s) return;
+            document.getElementById('edit-servico-id').value = id;
+            document.getElementById('edit-servico-cliente').value = s.cliente || '';
+            document.getElementById('edit-servico-procedimento').value = s.procedimento || '';
+            document.getElementById('edit-servico-data').value = s.data || '';
+            document.getElementById('edit-servico-valor').value = s.valor || 0;
+            document.getElementById('edit-servico-pagamento').value = s.pagamento || 'A Definir';
+            document.getElementById('modal-editar-servico').style.display = 'flex';
+        }
+
+        function fecharModalEditarServicoDirect() {
+            document.getElementById('modal-editar-servico').style.display = 'none';
+        }
+
+        function fecharModalEditarServico(e) {
+            if (e.target.id === 'modal-editar-servico') fecharModalEditarServicoDirect();
+        }
+
+        function salvarEdicaoServico(e) {
+            e.preventDefault();
+            const id = document.getElementById('edit-servico-id').value;
+            if (!id) return;
+
+            db.collection('servicos').doc(id).update({
+                cliente: document.getElementById('edit-servico-cliente').value.trim(),
+                procedimento: document.getElementById('edit-servico-procedimento').value.trim(),
+                data: document.getElementById('edit-servico-data').value,
+                valor: parseFloat(document.getElementById('edit-servico-valor').value) || 0,
+                pagamento: document.getElementById('edit-servico-pagamento').value
+            }).then(() => {
+                fecharModalEditarServicoDirect();
+            });
         }
 
         function alternarStatusServico(id, statusAtual) {
@@ -1605,6 +1619,7 @@
                         <td>
                             <div style="display:flex; gap:6px;">
                                 <a href="${linkLembrete}" target="_blank" class="btn-whatsapp-lembrete" title="Enviar lembrete formatado">📲 Lembrete</a>
+                                <button class="btn-secondary" onclick="abrirEditarServico('${s.id}')">✏️ Editar</button>
                                 <button class="btn-secondary" style="color:var(--status-danger-text);" onclick="removerServico('${s.id}')">Excluir</button>
                             </div>
                         </td>
@@ -1619,7 +1634,10 @@
                     <td>${s.procedimento}</td>
                     <td>R$ ${(s.valor || 0).toFixed(2)}</td>
                     <td><span class="tag tag-info">${s.pagamento || 'A Definir'}</span></td>
-                    <td><span onclick="alternarStatusServico('${s.id}', '${s.status}')" class="tag ${s.status === 'Concluído' ? 'tag-success' : 'tag-warning'}" style="cursor:pointer;">${s.status} ↺</span></td>
+                    <td>
+                        <span onclick="alternarStatusServico('${s.id}', '${s.status}')" class="tag ${s.status === 'Concluído' ? 'tag-success' : 'tag-warning'}" style="cursor:pointer; margin-bottom: 4px; display: block;">${s.status} ↺</span>
+                        <button class="btn-secondary" style="padding: 4px 8px; font-size: 0.7rem; width: 100%; justify-content: center;" onclick="abrirEditarServico('${s.id}')">✏️ Editar</button>
+                    </td>
                 </tr>
             `).join('');
 
