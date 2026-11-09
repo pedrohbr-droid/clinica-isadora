@@ -1,0 +1,635 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clínica Lumina | Realce Sua Beleza Natural</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ==========================================================================
+           CSS VARIABLES & RESET
+           ========================================================================== */
+        :root {
+            --primary: #C56C7D;
+            --primary-hover: #AF5768;
+            --primary-light: #F9ECEE;
+            --primary-soft: #F4D5DB;
+            --accent: #E89A9C;
+            --bg-page: #FAF5F6;
+            --bg-card: #FFFFFF;
+            --text-main: #2E2124;
+            --text-muted: #6E5A5E;
+            --border-color: #EEDCDD;
+            
+            --font-heading: 'Playfair Display', Georgia, serif;
+            --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-full: 9999px;
+            
+            --shadow-subtle: 0 4px 20px rgba(197, 108, 125, 0.08);
+            --shadow-card: 0 10px 30px rgba(74, 38, 44, 0.06);
+            --shadow-hover: 0 16px 36px rgba(197, 108, 125, 0.15);
+            
+            --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* ==========================================================================
+           LAYOUT & UTILITIES
+           ========================================================================== */
+        .container {
+            width: 100%;
+            max-width: 1160px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto 56px auto;
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: 0.825rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--primary);
+            background-color: var(--primary-light);
+            padding: 6px 16px;
+            border-radius: var(--radius-full);
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-family: var(--font-heading);
+            font-size: 2.25rem;
+            font-weight: 700;
+            line-height: 1.25;
+            color: var(--text-main);
+            margin-bottom: 12px;
+        }
+
+        .section-subtitle {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+        }
+
+        /* ==========================================================================
+           BUTTONS
+           ========================================================================== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 16px 36px;
+            font-size: 1.025rem;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: var(--radius-full);
+            transition: var(--transition);
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: #FFFFFF;
+            box-shadow: 0 8px 24px rgba(197, 108, 125, 0.35);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(197, 108, 125, 0.45);
+        }
+
+        /* ==========================================================================
+           HEADER / NAVBAR
+           ========================================================================== */
+        .navbar {
+            padding: 20px 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 10;
+        }
+
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-family: var(--font-heading);
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-main);
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        /* ==========================================================================
+           HERO SECTION
+           ========================================================================== */
+        .hero {
+            padding-top: 140px;
+            padding-bottom: 90px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--primary-soft) 0%, rgba(250, 245, 246, 0) 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 48px;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-content h1 {
+            font-family: var(--font-heading);
+            font-size: 3.25rem;
+            line-height: 1.18;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-main);
+        }
+
+        .hero-content h1 em {
+            font-style: italic;
+            color: var(--primary);
+        }
+
+        .hero-description {
+            font-size: 1.125rem;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+            max-width: 500px;
+        }
+
+        .hero-trust {
+            margin-top: 32px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .avatars {
+            display: flex;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 2px solid #FFFFFF;
+            margin-left: -10px;
+            background-color: var(--accent);
+            object-fit: cover;
+        }
+
+        .avatar:first-child {
+            margin-left: 0;
+        }
+
+        .trust-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .hero-card {
+            background-color: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .card-tag {
+            position: absolute;
+            top: -14px;
+            right: 24px;
+            background-color: var(--primary);
+            color: #FFFFFF;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: var(--radius-full);
+            text-transform: uppercase;
+        }
+
+        /* ==========================================================================
+           BENEFITS SECTION
+           ========================================================================== */
+        .benefits {
+            padding: 96px 0;
+            background-color: #FFFFFF;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+        }
+
+        .benefit-card {
+            background-color: var(--bg-page);
+            padding: 36px 28px;
+            border-radius: var(--radius-md);
+            border: 1px solid transparent;
+            transition: var(--transition);
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--primary-soft);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .benefit-icon {
+            width: 58px;
+            height: 58px;
+            border-radius: var(--radius-sm);
+            background-color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            font-size: 1.6rem;
+        }
+
+        .benefit-card h3 {
+            font-family: var(--font-heading);
+            font-size: 1.35rem;
+            margin-bottom: 12px;
+            color: var(--text-main);
+        }
+
+        .benefit-card p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        /* ==========================================================================
+           TESTIMONIALS SECTION
+           ========================================================================== */
+        .testimonials {
+            padding: 96px 0;
+            background-color: var(--bg-page);
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
+        }
+
+        .testimonial-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 32px;
+            box-shadow: var(--shadow-subtle);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .stars {
+            color: #EBB05A;
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+        }
+
+        .testimonial-text {
+            font-size: 0.975rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            font-style: italic;
+        }
+
+        .client-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .client-info img {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .client-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .client-service {
+            font-size: 0.8rem;
+            color: var(--primary);
+        }
+
+        /* ==========================================================================
+           FOOTER
+           ========================================================================== */
+        .footer {
+            background-color: #241A1C;
+            color: #CBB9BD;
+            padding: 48px 0 24px 0;
+            font-size: 0.9rem;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 32px;
+            margin-bottom: 24px;
+        }
+
+        .footer-logo {
+            font-family: var(--font-heading);
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
+        .footer-logo span {
+            color: var(--accent);
+        }
+
+        .copyright {
+            text-align: center;
+            font-size: 0.825rem;
+            color: #8C787C;
+        }
+
+        /* ==========================================================================
+           RESPONSIVE (MOBILE-FIRST BREAKPOINTS)
+           ========================================================================== */
+        @media (max-width: 968px) {
+            .hero-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+                text-align: center;
+            }
+
+            .hero-content h1 {
+                font-size: 2.6rem;
+            }
+
+            .hero-description {
+                margin: 0 auto 32px auto;
+            }
+
+            .hero-trust {
+                justify-content: center;
+            }
+
+            .benefits-grid,
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .section-title {
+                font-size: 1.85rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-content h1 {
+                font-size: 2.15rem;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="container nav-container">
+            <a href="#" class="logo">Lumina<span>.</span></a>
+            <a href="#agendamento" class="btn btn-primary" style="padding: 10px 22px; font-size: 0.875rem;">Agendar</a>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container hero-grid">
+                <div class="hero-content">
+                    <span class="badge">Estética Avançada & Bem-Estar</span>
+                    <h1>Realce a sua melhor versão com tratamentos <em>personalizados</em>.</h1>
+                    <p class="hero-description">
+                        Protocolos exclusivos, tecnologia de ponta e uma equipe médica dedicada a cuidar da sua autoestima com naturalidade e segurança.
+                    </p>
+                    <a href="#agendamento" class="btn btn-primary">
+                        Agendar Avaliação Gratuita
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                    
+                    <div class="hero-trust">
+                        <div class="avatars">
+                            <img class="avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Cliente Lumina">
+                            <img class="avatar" src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80" alt="Cliente Lumina">
+                            <img class="avatar" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80" alt="Cliente Lumina">
+                        </div>
+                        <div class="trust-text">
+                            ★★★★★ Mais de 2.500 pacientes satisfeitas
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-card" id="agendamento">
+                    <span class="card-tag">Exclusivo</span>
+                    <h3 style="font-family: var(--font-heading); font-size: 1.4rem; margin-bottom: 8px;">Primeira Consulta</h3>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px;">Garanta uma análise facial computadorizada completa como cortesia.</p>
+                    <ul style="list-style: none; margin-bottom: 24px;">
+                        <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem;">
+                            <span style="color: var(--primary); font-weight: bold;">✓</span> Avaliação 100% individualizada
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem;">
+                            <span style="color: var(--primary); font-weight: bold;">✓</span> Plano de tratamento sem compromisso
+                        </li>
+                        <li style="display: flex; align-items: center; gap: 8px; font-size: 0.95rem;">
+                            <span style="color: var(--primary); font-weight: bold;">✓</span> Ambiente intimista e seguro
+                        </li>
+                    </ul>
+                    <a href="https://wa.me/" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="width: 100%;">Quero Garantir Minha Vaga</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="benefits">
+            <div class="container">
+                <div class="section-header">
+                    <span class="badge">Por que nos escolher</span>
+                    <h2 class="section-title">O padrão de excelência que a sua pele merece</h2>
+                    <p class="section-subtitle">Combinamos ciência, sensibilidade artística e inovação para resultados sutis e duradouros.</p>
+                </div>
+
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-icon">✨</div>
+                        <h3>Resultados Naturais</h3>
+                        <p>Nosso foco é valorizar os seus traços únicos, evitando exageros e preservando a sua autenticidade e harmonia facial.</p>
+                    </div>
+
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🔬</div>
+                        <h3>Tecnologia de Ponta</h3>
+                        <p>Equipamentos certificados pela ANVISA e FDA de última geração para máxima eficácia com o mínimo de desconforto.</p>
+                    </div>
+
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🌿</div>
+                        <h3>Atendimento Humanizado</h3>
+                        <p>Ambiente acolhedor e escuta atenta para criar um plano seguro e adaptado à sua rotina e objetivos.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="testimonials">
+            <div class="container">
+                <div class="section-header">
+                    <span class="badge">Depoimentos</span>
+                    <h2 class="section-title">Histórias de quem transformou a autoestima</h2>
+                    <p class="section-subtitle">A confiança de nossas pacientes é a nossa maior conquista.</p>
+                </div>
+
+                <div class="testimonials-grid">
+                    <div class="testimonial-card">
+                        <div>
+                            <div class="stars">★★★★★</div>
+                            <p class="testimonial-text">"O procedimento de harmonização facial foi extremamente sutil. As pessoas comentam que pareço mais descansada, exatamente como eu queria!"</p>
+                        </div>
+                        <div class="client-info">
+                            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&auto=format&fit=crop&q=80" alt="Mariana Siqueira">
+                            <div>
+                                <div class="client-name">Mariana Siqueira</div>
+                                <div class="client-service">Harmonização Facial</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="testimonial-card">
+                        <div>
+                            <div class="stars">★★★★★</div>
+                            <p class="testimonial-text">"Espaço impecável e profissionais acolhedoras. Fiz meu protocolo de rejuvenescimento a laser e os resultados superaram as expectativas."</p>
+                        </div>
+                        <div class="client-info">
+                            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&auto=format&fit=crop&q=80" alt="Juliana Castro">
+                            <div>
+                                <div class="client-name">Juliana Castro</div>
+                                <div class="client-service">Rejuvenescimento a Laser</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="testimonial-card">
+                        <div>
+                            <div class="stars">★★★★★</div>
+                            <p class="testimonial-text">"O cuidado da equipe do pré ao pós-procedimento faz toda a diferença. Senti total segurança desde o primeiro minuto de conversa."</p>
+                        </div>
+                        <div class="client-info">
+                            <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=120&auto=format&fit=crop&q=80" alt="Camila Meireles">
+                            <div>
+                                <div class="client-name">Camila Meireles</div>
+                                <div class="client-service">Bioestimuladores de Colágeno</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <div class="footer-logo">Lumina<span>.</span></div>
+                    <p style="margin-top: 4px; font-size: 0.85rem;">Clínica de Estética e Dermatologia</p>
+                </div>
+                <div>
+                    <p>Atendimento: Seg à Sex, 08h às 19h | Sáb, 08h às 13h</p>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2026 Clínica Lumina. Todos os direitos reservados.
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

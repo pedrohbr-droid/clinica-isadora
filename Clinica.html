@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Isadora | Estética & Saúde - Gestão em Nuvem & DRE</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Firebase SDKs (Auth & Firestore) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <!-- Supabase SDK (Storage de Fotos) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --bg-body: #FAF5F5;
+            --bg-surface: #FFFFFF;
+            --bg-subtle: #FFF9F9;
+            --bg-rose-glass: rgba(255, 255, 255, 0.92);
+
+            --gold-light: #E7C996;
+            --gold-main: #C9A063;
+            --gold-dark: #A57E44;
+            --gold-gradient: linear-gradient(135deg, #DFBE85 0%, #C9A063 50%, #B38645 100%);
+            
+            --rose-50: #FFF3F5;
+            --rose-100: #FCE4E8;
+            --rose-200: #F7CCD4;
+            --rose-300: #EAA4B2;
+            --rose-500: #C77083;
+            --rose-700: #934658;
+            --rose-gradient: linear-gradient(135deg, #D47E91 0%, #B85F73 100%);
+
+            --text-title: #38242A;
+            --text-body: #5D454C;
+            --text-muted: #8E737B;
+            --text-light: #B29AA1;
+
+            --border-soft: #F2E3E6;
+            --border-gold: rgba(201, 160, 99, 0.28);
+            --shadow-subtle: 0 4px 20px rgba(184, 95, 115, 0.04);
+            --shadow-card: 0 10px 30px rgba(138, 70, 88, 0.06);
+            --shadow-hover: 0 16px 36px rgba(199, 112, 131, 0.12);
+
+            --status-success-bg: #EEF8F3;
+            --status-success-text: #2D7A54;
+            --status-warning-bg: #FEF6EC;
+            --status-warning-text: #B4711D;
+            --status-danger-bg: #FDF1F2;
+            --status-danger-text: #BD384A;
+            --status-info-bg: #F0F4FA;
+            --status-info-text: #2B527E;
+
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 28px;
+            --radius-full: 9999px;
+
+            --font-serif: 'Cormorant Garamond', Georgia, serif;
+            --font-sans: 'Montserrat', system-ui, -apple-system, sans-serif;
+            --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-sans); }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-body);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(247, 204, 212, 0.45) 0%, transparent 40%),
+                radial-gradient(circle at 90% 20%, rgba(223, 190, 133, 0.25) 0%, transparent 45%),
+                radial-gradient(circle at 50% 90%, rgba(252, 228, 232, 0.4) 0%, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .clinic-brand-logo {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .brand-logo-title {
+            font-family: var(--font-serif);
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: 3.5px;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+            text-shadow: 0 2px 10px rgba(201, 160, 99, 0.15);
+        }
+
+        .brand-logo-tagline {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .brand-logo-tagline span {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--gold-dark);
+            letter-spacing: 3.5px;
+            text-transform: uppercase;
+        }
+
+        .brand-logo-tagline::before,
+        .brand-logo-tagline::after {
+            content: '';
+            display: inline-block;
+            height: 1.5px;
+            flex: 1;
+            background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+        }
+
+        /* AUTH SCREEN */
+        .auth-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 20px;
+        }
+
+        .auth-card {
+            background: var(--bg-rose-glass);
+            backdrop-filter: blur(14px);
+            width: 100%;
+            max-width: 440px;
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 20px 45px rgba(138, 70, 88, 0.12);
+            padding: 40px 32px;
+            text-align: center;
+        }
+
+        .auth-emblem {
+            width: 72px; height: 72px; border-radius: 50%;
+            background: linear-gradient(145deg, #FFF9FA, #FDE6EA);
+            border: 1.5px solid var(--gold-light);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 6px 16px rgba(201, 160, 99, 0.25);
+            margin: 0 auto 18px auto;
+            position: relative;
+        }
+
+        .auth-emblem::after {
+            content: '✨';
+            position: absolute;
+            font-size: 13px;
+            top: -4px;
+            right: -2px;
+        }
+
+        .auth-emblem-text {
+            font-family: var(--font-serif);
+            font-size: 2.4rem; font-weight: 700;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .auth-nav-tabs {
+            display: flex; background: rgba(255, 243, 245, 0.7);
+            border-radius: var(--radius-full); padding: 4px;
+            border: 1px solid var(--border-soft); margin: 26px 0 20px 0;
+        }
+
+        .auth-tab-btn {
+            flex: 1; border: none; background: transparent; padding: 9px 0;
+            border-radius: var(--radius-full); font-size: 0.84rem; font-weight: 600;
+            color: var(--text-muted); cursor: pointer; transition: var(--transition);
+        }
+
+        .auth-tab-btn.active {
+            background: var(--rose-gradient); color: #FFFFFF;
+            box-shadow: 0 4px 12px rgba(184, 95, 115, 0.3);
+        }
+
+        .auth-form { text-align: left; }
+        .auth-input-group { margin-bottom: 16px; }
+
+        .auth-input-group label {
+            display: block; font-size: 0.76rem; font-weight: 700;
+            color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px;
+        }
+
+        .auth-input-group input {
+            width: 100%; padding: 12px 16px; border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border-soft); background: #FFFFFF;
+            font-size: 0.92rem; color: var(--text-title); outline: none; transition: var(--transition);
+        }
+
+        .auth-input-group input:focus {
+            border-color: var(--rose-300);
+            box-shadow: 0 0 0 4px rgba(234, 164, 178, 0.18);
+        }
+
+        .auth-alert {
+            padding: 10px 14px; border-radius: var(--radius-sm); font-size: 0.82rem; font-weight: 600;
+            margin-bottom: 16px; display: none;
+        }
+
+        .auth-alert.error { background: var(--status-danger-bg); color: var(--status-danger-text); border: 1px solid rgba(189, 56, 74, 0.2); display: block; }
+        .auth-alert.success { background: var(--status-success-bg); color: var(--status-success-text); border: 1px solid rgba(45, 122, 84, 0.2); display: block; }
+
+        /* APP SCREEN */
+        #app-screen { padding: 36px 20px 60px 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        .header {
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--bg-rose-glass); backdrop-filter: blur(12px);
+            padding: 18px 30px; border-radius: var(--radius-lg);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: var(--shadow-card); margin-bottom: 30px;
+        }
+
+        .brand-wrapper { display: flex; align-items: center; gap: 18px; }
+
+        .header-emblem {
+            width: 52px; height: 52px; border-radius: 50%;
+            background: linear-gradient(145deg, #FFF9FA, #FDE6EA);
+            border: 1.5px solid var(--gold-light); display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 14px rgba(201, 160, 99, 0.2);
+            font-family: var(--font-serif); font-size: 1.8rem; font-weight: 700;
+            background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .user-pill {
+            display: flex; align-items: center; gap: 8px; padding: 8px 16px;
+            background: rgba(255, 243, 245, 0.8); border: 1px solid var(--rose-200);
+            border-radius: var(--radius-full); font-size: 0.82rem; font-weight: 600; color: var(--rose-700);
+        }
+
+        .btn-icon-soft {
+            display: flex; align-items: center; gap: 8px; padding: 10px 18px;
+            background: var(--bg-surface); border: 1px solid var(--border-soft);
+            border-radius: var(--radius-full); color: var(--text-muted); font-size: 0.82rem; font-weight: 600;
+            cursor: pointer; transition: var(--transition);
+        }
+
+        .btn-icon-soft:hover { color: var(--rose-700); border-color: var(--rose-300); background: var(--rose-50); }
+
+        .nav-tabs {
+            display: flex; gap: 8px; background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(8px); padding: 6px; border-radius: var(--radius-full);
+            border: 1px solid var(--border-soft); width: fit-content; margin: 0 auto 36px auto;
+            box-shadow: var(--shadow-subtle); overflow-x: auto;
+        }
+
+        .tab-button {
+            border: none; background: transparent; padding: 11px 22px;
+            border-radius: var(--radius-full); font-size: 0.86rem; font-weight: 600;
+            color: var(--text-muted); cursor: pointer; transition: var(--transition);
+            display: flex; align-items: center; gap: 8px; white-space: nowrap;
+        }
+
+        .tab-button.active {
+            background: var(--rose-gradient); color: #FFFFFF;
+            box-shadow: 0 6px 18px rgba(184, 95, 115, 0.35);
+        }
+
+        .welcome-banner {
+            background: linear-gradient(135deg, #FFFFFF 0%, #FFF5F7 60%, #FDF0E2 100%);
+            border-radius: var(--radius-lg); border: 1px solid var(--border-soft);
+            padding: 28px 34px; margin-bottom: 28px; display: flex; justify-content: space-between;
+            align-items: center; box-shadow: var(--shadow-card);
+        }
+
+        .welcome-banner h2 { font-family: var(--font-serif); font-size: 2.2rem; font-style: italic; color: var(--text-title); }
+
+        .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 30px; }
+
+        .metric-card {
+            background: var(--bg-surface); padding: 22px 20px; border-radius: var(--radius-md);
+            border: 1px solid var(--border-soft); box-shadow: var(--shadow-card); transition: var(--transition);
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+
+        .metric-card.interactive-card { cursor: pointer; }
+        .metric-card.interactive-card:hover { transform: translateY(-4px); border-color: var(--gold-main); }
+
+        .metric-label { font-size: 0.73rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.4px; }
+        .metric-value { font-family: var(--font-serif); font-size: 2.1rem; font-weight: 700; color: var(--text-title); margin: 6px 0; }
+
+        .panel {
+            background: var(--bg-surface); border-radius: var(--radius-lg); border: 1px solid var(--border-soft);
+            padding: 30px; box-shadow: var(--shadow-card); margin-bottom: 28px;
+        }
+
+        .panel-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px;
+            border-bottom: 1px solid var(--rose-50); padding-bottom: 14px;
+            flex-wrap: wrap; gap: 12px;
+        }
+
+        .panel-title { font-family: var(--font-serif); font-size: 1.55rem; font-style: italic; color: var(--text-title); }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 0.76rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+        
+        .form-control {
+            width: 100%; padding: 12px 16px; border-radius: var(--radius-sm); border: 1.5px solid var(--border-soft);
+            background: var(--bg-subtle); font-size: 0.92rem; color: var(--text-title); outline: none;
+        }
+
+        .form-control:focus { border-color: var(--rose-300); background: #FFF; }
+
+        .btn-primary {
+            background: var(--rose-gradient); color: #FFFFFF; border: none; padding: 12px 26px;
+            border-radius: var(--radius-full); font-size: 0.88rem; font-weight: 600; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 6px 18px rgba(184, 95, 115, 0.3);
+        }
+
+        .btn-secondary {
+            background: #FFFFFF; color: var(--text-body); border: 1.5px solid var(--border-soft);
+            padding: 8px 16px; border-radius: var(--radius-full); font-size: 0.82rem; font-weight: 600; cursor: pointer;
+            transition: var(--transition); display: inline-flex; align-items: center; gap: 6px;
+        }
+
+        .btn-secondary:hover { border-color: var(--rose-300); background: var(--rose-50); }
+
+        .btn-anamnese {
+            background: linear-gradient(135deg, #FAF4E9 0%, #F5EADB 100%); border: 1px solid var(--gold-light);
+            color: var(--gold-dark); padding: 6px 13px; border-radius: var(--radius-full); font-size: 0.78rem; font-weight: 600; cursor: pointer;
+        }
+
+        .btn-prontuario {
+            background: linear-gradient(135deg, #FFF5F7 0%, #FEE8EC 100%); border: 1px solid var(--rose-200);
+            color: var(--rose-700); padding: 6px 13px; border-radius: var(--radius-full); font-size: 0.78rem; font-weight: 600; cursor: pointer;
+        }
+
+        .table-responsive { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.92rem; }
+        th { padding: 14px 18px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); border-bottom: 1.5px solid var(--rose-100); background: rgba(255, 243, 245, 0.4); }
+        td { padding: 16px 18px; border-bottom: 1px solid var(--border-soft); color: var(--text-body); }
+
+        .tag { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 600; }
+        .tag-success { background: var(--status-success-bg); color: var(--status-success-text); }
+        .tag-warning { background: var(--status-warning-bg); color: var(--status-warning-text); }
+        .tag-danger { background: var(--status-danger-bg); color: var(--status-danger-text); }
+        .tag-info { background: var(--status-info-bg); color: var(--status-info-text); border: 1px solid rgba(43, 82, 126, 0.15); }
+
+        .btn-whatsapp-small {
+            display: inline-flex; align-items: center; gap: 6px; background: #EAF8F0;
+            color: #21834C; border: 1px solid rgba(33, 131, 76, 0.2); padding: 6px 12px;
+            border-radius: var(--radius-full); font-size: 0.78rem; font-weight: 600;
+            text-decoration: none; transition: var(--transition);
+        }
+        .btn-whatsapp-small:hover { background: #25D366; color: #FFFFFF; }
+
+        .btn-whatsapp-lembrete {
+            display: inline-flex; align-items: center; gap: 6px; background: #FFF9E6;
+            color: #B4711D; border: 1px solid rgba(180, 113, 29, 0.2); padding: 6px 12px;
+            border-radius: var(--radius-full); font-size: 0.78rem; font-weight: 600;
+            text-decoration: none; transition: var(--transition);
+        }
+        .btn-whatsapp-lembrete:hover { background: #E09B3D; color: #FFFFFF; }
+
+        .filter-pill-group {
+            display: flex; gap: 8px; background: var(--bg-subtle); padding: 4px;
+            border-radius: var(--radius-full); border: 1px solid var(--border-soft);
+        }
+
+        .filter-pill-btn {
+            border: none; background: transparent; padding: 6px 16px;
+            border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 600;
+            color: var(--text-muted); cursor: pointer; transition: var(--transition);
+        }
+
+        .filter-pill-btn.active {
+            background: #FFFFFF; color: var(--rose-700); box-shadow: var(--shadow-subtle);
+            border: 1px solid var(--border-soft);
+        }
+
+        .dre-table tr.dre-highlight {
+            background-color: rgba(254, 246, 236, 0.4);
+            font-weight: 700;
+        }
+        .dre-table tr.dre-total {
+            background: linear-gradient(90deg, rgba(255,243,245,0.7), rgba(249,236,238,0.7));
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
+        /* MODAIS */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(43, 26, 31, 0.65);
+            backdrop-filter: blur(8px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal-content {
+            background: #FFFFFF; width: 100%; max-width: 960px; max-height: 90vh; border-radius: var(--radius-lg);
+            border: 1px solid var(--border-gold); box-shadow: 0 20px 50px rgba(70, 28, 38, 0.25); overflow-y: auto;
+        }
+        .modal-header {
+            padding: 24px 32px; border-bottom: 1px solid var(--border-soft); display: flex; justify-content: space-between;
+            align-items: center; background: linear-gradient(135deg, #FFF9FA 0%, #FFF2F4 100%); position: sticky; top: 0; z-index: 10;
+        }
+        .modal-body { padding: 32px; }
+
+        .anamnese-section-title {
+            font-family: var(--font-serif); font-size: 1.35rem; font-weight: 700; color: var(--text-title);
+            background: var(--rose-50); padding: 10px 16px; border-radius: var(--radius-sm);
+            border-left: 4px solid var(--rose-500); margin: 24px 0 16px 0;
+        }
+        .anamnese-section-title:first-of-type { margin-top: 0; }
+        .anamnese-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .anamnese-question { background: var(--bg-subtle); border: 1px solid var(--border-soft); border-radius: var(--radius-sm); padding: 14px 16px; }
+        .anamnese-question label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--text-title); margin-bottom: 8px; }
+
+        .anamnese-termo-box {
+            background: #FFFDF9; border: 1.5px solid var(--gold-light);
+            border-radius: var(--radius-md); padding: 24px; margin: 24px 0;
+        }
+
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 24px; }
+        .photo-card { 
+            background: #FFFFFF; 
+            border: 1px solid var(--border-soft); 
+            border-radius: var(--radius-md); 
+            overflow: hidden; 
+            box-shadow: var(--shadow-subtle);
+            transition: var(--transition);
+        }
+        .photo-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-card); }
+        .photo-img-container { width: 100%; height: 220px; background: #F4EAEB; cursor: pointer; }
+        .photo-img-container img { width: 100%; height: 100%; object-fit: cover; }
+
+        @media print {
+            body * { visibility: hidden; }
+            #modal-anamnese, #modal-anamnese * { visibility: visible; }
+            #modal-anamnese {
+                position: absolute; left: 0; top: 0; width: 100%; height: auto;
+                background: white; padding: 0; margin: 0; display: block !important;
+            }
+            .modal-content { max-width: 100%; border: none; box-shadow: none; overflow: visible; }
+            .modal-header button, .anamnese-actions-footer { display: none !important; }
+            .form-control { border: 1px solid #999 !important; background: transparent !important; }
+            .anamnese-section-title { background: #f0f0f0 !important; color: #000 !important; }
+        }
+
+        @media (max-width: 960px) { .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .metrics-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <!-- TELA DE LOGIN & CADASTRO -->
+    <div id="auth-screen" class="auth-wrapper">
+        <div class="auth-card">
+            <div class="auth-emblem">
+                <span class="auth-emblem-text">I</span>
+            </div>
+
+            <div class="clinic-brand-logo">
+                <div class="brand-logo-title">ISADORA</div>
+                <div class="brand-logo-tagline">
+                    <span>Estética e Saúde</span>
+                </div>
+            </div>
+
+            <div class="auth-nav-tabs">
+                <button type="button" class="auth-tab-btn active" id="tab-btn-login" onclick="switchAuthTab('login')">Entrar</button>
+                <button type="button" class="auth-tab-btn" id="tab-btn-register" onclick="switchAuthTab('register')">Cadastrar</button>
+            </div>
+
+            <div id="auth-alert" class="auth-alert"></div>
+
+            <form id="form-login" class="auth-form" onsubmit="fazerLogin(event)">
+                <div class="auth-input-group">
+                    <label>E-mail de Acesso</label>
+                    <input type="text" id="login-user" placeholder="seuemail@exemplo.com ou admin" required autocomplete="username">
+                </div>
+                <div class="auth-input-group">
+                    <label>Senha</label>
+                    <input type="password" id="login-pass" placeholder="••••••••" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px; justify-content: center;">
+                    <span>✨</span> Acessar Painel
+                </button>
+            </form>
+
+            <form id="form-register" class="auth-form" style="display: none;" onsubmit="fazerCadastro(event)">
+                <div class="auth-input-group">
+                    <label>Seu Nome Completo</label>
+                    <input type="text" id="reg-nome" placeholder="Ex: Isadora Silva" required>
+                </div>
+                <div class="auth-input-group">
+                    <label>E-mail de Acesso</label>
+                    <input type="email" id="reg-email" placeholder="seuemail@exemplo.com" required autocomplete="username">
+                </div>
+                <div class="auth-input-group">
+                    <label>Criar Senha (mín. 6 dígitos)</label>
+                    <input type="password" id="reg-pass" placeholder="Crie sua senha" required minlength="6" autocomplete="new-password">
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px; justify-content: center;">
+                    <span>🌸</span> Criar Minha Conta
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- TELA PRINCIPAL (DASHBOARD) -->
+    <div id="app-screen" style="display: none;">
+        <div class="container">
+            <header class="header">
+                <div class="brand-wrapper">
+                    <div class="header-emblem">I</div>
+                    <div class="clinic-brand-logo" style="align-items: flex-start;">
+                        <div class="brand-logo-title" style="font-size: 1.8rem;">ISADORA</div>
+                        <div class="brand-logo-tagline" style="margin-top: 2px;">
+                            <span style="font-size: 0.65rem;">Estética e Saúde</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <div class="user-pill">
+                        <span>👤</span> <span id="header-user-name">Carregando...</span>
+                    </div>
+                    <button class="btn-icon-soft" style="color: var(--status-danger-text);" onclick="fazerLogout()">🚪 Sair</button>
+                </div>
+            </header>
+
+            <nav class="nav-tabs">
+                <button class="tab-button active" onclick="switchTab('resumo')"><span>🌸</span> Visão Geral</button>
+                <button class="tab-button" onclick="switchTab('agenda')"><span>📅</span> Agenda</button>
+                <button class="tab-button" onclick="switchTab('clientes')"><span>✨</span> Pacientes & Fichas</button>
+                <button class="tab-button" onclick="switchTab('produtos')"><span>💄</span> Estoque & Custos</button>
+                <button class="tab-button" onclick="switchTab('financeiro')"><span>💎</span> Financeiro & DRE</button>
+            </nav>
+
+            <!-- ABA 1: VISÃO GERAL -->
+            <main id="tab-resumo">
+                <section class="welcome-banner">
+                    <div>
+                        <h2>Bem-vinda, <span id="welcome-user-name">Dra. Isadora</span> ✨</h2>
+                        <p>Os dados estão sincronizados em nuvem entre todos os seus dispositivos.</p>
+                    </div>
+                </section>
+
+                <section class="metrics-grid">
+                    <div class="metric-card interactive-card" onclick="switchTab('clientes')">
+                        <span class="metric-label">Pacientes Ativas</span>
+                        <div class="metric-value" id="resumo-clientes">0</div>
+                        <div style="font-size:0.75rem; color:var(--text-light);">Base em tempo real ➔</div>
+                    </div>
+                    <div class="metric-card interactive-card" onclick="switchTab('agenda')">
+                        <span class="metric-label">Agendamentos</span>
+                        <div class="metric-value" id="resumo-agendamentos">0</div>
+                        <div style="font-size:0.75rem; color:var(--text-light);">Próximos atendimentos ➔</div>
+                    </div>
+                    <div class="metric-card interactive-card" onclick="switchTab('produtos')">
+                        <span class="metric-label">Estoque Baixo</span>
+                        <div class="metric-value" id="resumo-estoque-baixo" style="color: var(--status-warning-text);">0</div>
+                        <div style="font-size:0.75rem; color:var(--rose-700);">Repor produtos ➔</div>
+                    </div>
+                    <div class="metric-card interactive-card" onclick="rolarParaVencimentos()">
+                        <span class="metric-label">Insumos Vencendo</span>
+                        <div class="metric-value" id="resumo-produtos-vencendo" style="color: var(--status-danger-text);">0</div>
+                        <div style="font-size:0.75rem; color:var(--status-danger-text);">Próximos 30 dias ➔</div>
+                    </div>
+                </section>
+
+                <section class="panel" id="painel-vencimentos" style="border: 1px solid var(--rose-300);">
+                    <div class="panel-header">
+                        <div class="panel-title" style="color: var(--rose-700);">
+                            <span>⏳</span> Alerta de Validade dos Insumos
+                        </div>
+                        <button class="btn-secondary" onclick="switchTab('produtos')">Gerenciar Insumos</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr><th>Produto / Insumo</th><th>Estoque</th><th>Data de Validade</th><th>Status de Validade</th><th>Ação</th></tr>
+                            </thead>
+                            <tbody id="lista-alertas-vencimento"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="panel" id="painel-retornos" style="border: 1px solid var(--gold-light);">
+                    <div class="panel-header">
+                        <div class="panel-title"><span>⏳</span> Pacientes Prontas para Retorno / Manutenção</div>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr><th>Paciente</th><th>Procedimento Anterior</th><th>Última Sessão</th><th>Tempo Decorrido</th><th>Ação Recomendada</th></tr>
+                            </thead>
+                            <tbody id="lista-alertas-retorno"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">📋 Últimos Procedimentos Realizados</div>
+                        <button class="btn-secondary" onclick="switchTab('agenda')">+ Ver Agenda</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr><th>Data</th><th>Paciente</th><th>Procedimento</th><th>Valor</th><th>Pagamento</th><th>Status</th></tr>
+                            </thead>
+                            <tbody id="resumo-ultimos-servicos"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+
+            <!-- ABA 2: AGENDA -->
+            <main id="tab-agenda" style="display: none;">
+                <section class="panel">
+                    <div class="panel-header"><div class="panel-title">🗓️ Novo Agendamento</div></div>
+                    <form onsubmit="adicionarServico(event)">
+                        <div class="form-grid">
+                            <div class="form-group"><label>Paciente</label><input type="text" id="agenda-cliente" class="form-control" required placeholder="Nome da paciente"></div>
+                            <div class="form-group"><label>Procedimento</label><input type="text" id="agenda-procedimento" class="form-control" required placeholder="Ex: Botox, Preenchimento"></div>
+                            <div class="form-group"><label>Data & Hora</label><input type="datetime-local" id="agenda-data" class="form-control" required></div>
+                            <div class="form-group"><label>Valor (R$)</label><input type="number" step="0.01" id="agenda-valor" class="form-control" required placeholder="0,00"></div>
+                            <div class="form-group">
+                                <label>Forma de Pagamento</label>
+                                <select id="agenda-pagamento" class="form-control" required>
+                                    <option value="Pix">Pix</option>
+                                    <option value="Cartão de Crédito">Cartão de Crédito</option>
+                                    <option value="Cartão de Débito">Cartão de Débito</option>
+                                    <option value="Dinheiro">Dinheiro</option>
+                                    <option value="A Definir">A Definir / Pendente</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary"><span>✨</span> Salvar Agendamento</button>
+                    </form>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">📅 Todos os Agendamentos</div>
+                        <div class="filter-pill-group">
+                            <button class="filter-pill-btn active" id="btn-filtro-todos" onclick="filtrarAgenda('todos')">Todos</button>
+                            <button class="filter-pill-btn" id="btn-filtro-hoje" onclick="filtrarAgenda('hoje')">Hoje</button>
+                            <button class="filter-pill-btn" id="btn-filtro-semana" onclick="filtrarAgenda('semana')">Esta Semana</button>
+                            <button class="filter-pill-btn" id="btn-filtro-mes" onclick="filtrarAgenda('mes')">Este Mês</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead><tr><th>Data/Hora</th><th>Paciente</th><th>Procedimento</th><th>Valor</th><th>Pagamento</th><th>Status</th><th>Lembrete & Ações</th></tr></thead>
+                            <tbody id="lista-agenda-completa"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+
+            <!-- ABA 3: PACIENTES & DATA DE NASCIMENTO -->
+            <main id="tab-clientes" style="display: none;">
+                <section class="panel">
+                    <div class="panel-header"><div class="panel-title">✨ Cadastrar Paciente</div></div>
+                    <form onsubmit="adicionarCliente(event)">
+                        <div class="form-grid">
+                            <div class="form-group"><label>Nome Completo</label><input type="text" id="cliente-nome" class="form-control" required placeholder="Nome da paciente"></div>
+                            <div class="form-group"><label>WhatsApp</label><input type="tel" id="cliente-telefone" class="form-control" required placeholder="(11) 99999-9999"></div>
+                            <div class="form-group"><label>Data de Nascimento</label><input type="date" id="cliente-nascimento" class="form-control" required></div>
+                        </div>
+                        <button type="submit" class="btn-primary"><span>🌸</span> Cadastrar</button>
+                    </form>
+                </section>
+                <section class="panel">
+                    <div class="panel-header"><div class="panel-title">👥 Pacientes & Prontuários</div></div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead><tr><th>Paciente</th><th>WhatsApp</th><th>Data Nasc. (Idade)</th><th>Documentos</th><th>Ações</th></tr></thead>
+                            <tbody id="lista-pacientes-tabela"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+
+            <!-- ABA 4: PRODUTOS & CUSTO PAGO -->
+            <main id="tab-produtos" style="display: none;">
+                <section class="panel">
+                    <div class="panel-header"><div class="panel-title">💄 Cadastrar Insumo & Valor Pago</div></div>
+                    <form onsubmit="adicionarProduto(event)">
+                        <div class="form-grid">
+                            <div class="form-group"><label>Nome do Produto / Marca</label><input type="text" id="prod-nome" class="form-control" required placeholder="Ex: Ácido Hialurônico Juvederm"></div>
+                            <div class="form-group"><label>Qtd em Estoque</label><input type="number" id="prod-qtd" class="form-control" required placeholder="0"></div>
+                            <div class="form-group"><label>Valor Pago / Custo Unitário (R$)</label><input type="number" step="0.01" id="prod-custo" class="form-control" required placeholder="Ex: 180,00"></div>
+                            <div class="form-group"><label>Estoque Mínimo (Alerta)</label><input type="number" id="prod-min" class="form-control" required placeholder="2"></div>
+                            <div class="form-group"><label>Data de Validade</label><input type="date" id="prod-validade" class="form-control" required></div>
+                        </div>
+                        <button type="submit" class="btn-primary"><span>📦</span> Adicionar ao Estoque</button>
+                    </form>
+                </section>
+                <section class="panel">
+                    <div class="panel-header"><div class="panel-title">📦 Controle de Insumos & Custos de Compra</div></div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead><tr><th>Produto</th><th>Estoque</th><th>Custo Unit.</th><th>Total Investido</th><th>Validade</th><th>Status</th><th>Ações</th></tr></thead>
+                            <tbody id="lista-produtos-tabela"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+
+            <!-- ABA 5: FINANCEIRO & DRE COMPLETO -->
+            <main id="tab-financeiro" style="display: none;">
+                <section class="metrics-grid">
+                    <div class="metric-card">
+                        <span class="metric-label">Receita Bruta (Entradas)</span>
+                        <div class="metric-value" id="fin-faturamento-total" style="color: var(--status-success-text);">R$ 0,00</div>
+                        <div style="font-size:0.75rem; color:var(--text-light);">Procedimentos concluídos</div>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Despesa / Custo de Produtos</span>
+                        <div class="metric-value" id="fin-custo-total" style="color: var(--status-danger-text);">R$ 0,00</div>
+                        <div style="font-size:0.75rem; color:var(--text-light);">Total investido em estoque</div>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Lucro Líquido Realizado</span>
+                        <div class="metric-value" id="fin-lucro-liquido">R$ 0,00</div>
+                        <div style="font-size:0.75rem; color:var(--text-light);">Receitas menos custos</div>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Margem de Lucro (%)</span>
+                        <div class="metric-value" id="fin-margem-lucro">0%</div>
+                        <div style="font-size:0.75rem; color:var(--text-light);">Rentabilidade do período</div>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title"><span>📊</span> Demonstrativo de Resultado (DRE Simplificado)</div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="dre-table">
+                            <thead>
+                                <tr><th>Indicador Financeiro</th><th>Discriminação</th><th>Valor (R$)</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr class="dre-highlight">
+                                    <td><strong>(+) RECEITA OPERACIONAL BRUTA</strong></td>
+                                    <td>Faturamento total com procedimentos já finalizados</td>
+                                    <td style="color: var(--status-success-text); font-weight:700;" id="dre-receita-realizada">R$ 0,00</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>(-) CUSTO DAS MERCADORIAS / INSUMOS</strong></td>
+                                    <td>Total de valores pagos em produtos cadastrados no estoque</td>
+                                    <td style="color: var(--status-danger-text); font-weight:700;" id="dre-custo-insumos">- R$ 0,00</td>
+                                </tr>
+                                <tr class="dre-total">
+                                    <td><strong>(=) RESULTADO OPERACIONAL / LUCRO LÍQUIDO</strong></td>
+                                    <td>Diferença real entre valores recebidos e gastos com produtos</td>
+                                    <td id="dre-resultado-liquido">R$ 0,00</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>(+) RECEITAS PREVISTAS (A RECEBER)</strong></td>
+                                    <td>Previsão de entrada de procedimentos agendados</td>
+                                    <td style="color: var(--gold-dark); font-weight:600;" id="dre-receita-prevista">+ R$ 0,00</td>
+                                </tr>
+                                <tr class="dre-highlight">
+                                    <td><strong>(=) PROJEÇÃO DE RESULTADO FUTURO</strong></td>
+                                    <td>Lucro estimado considerando todos os agendamentos marcados</td>
+                                    <td id="dre-projecao-futura" style="font-weight:700;">R$ 0,00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title"><span>💳</span> Receita por Forma de Pagamento</div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric-card" style="background: var(--bg-subtle);">
+                            <span class="metric-label">⚡ Pix</span>
+                            <div class="metric-value" id="fin-pix" style="font-size: 1.6rem; color: var(--rose-700);">R$ 0,00</div>
+                        </div>
+                        <div class="metric-card" style="background: var(--bg-subtle);">
+                            <span class="metric-label">💳 Cartão de Crédito</span>
+                            <div class="metric-value" id="fin-credito" style="font-size: 1.6rem; color: var(--rose-700);">R$ 0,00</div>
+                        </div>
+                        <div class="metric-card" style="background: var(--bg-subtle);">
+                            <span class="metric-label">💳 Cartão de Débito</span>
+                            <div class="metric-value" id="fin-debito" style="font-size: 1.6rem; color: var(--rose-700);">R$ 0,00</div>
+                        </div>
+                        <div class="metric-card" style="background: var(--bg-subtle);">
+                            <span class="metric-label">💵 Dinheiro</span>
+                            <div class="metric-value" id="fin-dinheiro" style="font-size: 1.6rem; color: var(--rose-700);">R$ 0,00</div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL: EDITAR PACIENTE -->
+    <div class="modal-overlay" id="modal-editar-cliente" onclick="fecharModalEditarCliente(event)">
+        <div class="modal-content" style="max-width: 520px;" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div>
+                    <h3>✏️ Editar Dados da Paciente</h3>
+                    <p style="font-size: 0.85rem; color: var(--rose-700);">Atualização cadastral em tempo real</p>
+                </div>
+                <button class="btn-icon-soft" onclick="fecharModalEditarClienteDirect()">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-editar-cliente" onsubmit="salvarEdicaoCliente(event)">
+                    <input type="hidden" id="edit-cliente-id">
+                    <div class="auth-input-group">
+                        <label>Nome Completo</label>
+                        <input type="text" id="edit-cliente-nome" class="form-control" required>
+                    </div>
+                    <div class="auth-input-group">
+                        <label>WhatsApp / Telefone</label>
+                        <input type="tel" id="edit-cliente-telefone" class="form-control" required>
+                    </div>
+                    <div class="auth-input-group">
+                        <label>Data de Nascimento</label>
+                        <input type="date" id="edit-cliente-nascimento" class="form-control" required>
+                    </div>
+                    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px;">
+                        <button type="button" class="btn-secondary" onclick="fecharModalEditarClienteDirect()">Cancelar</button>
+                        <button type="submit" class="btn-primary"><span>💾</span> Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ANAMNESE COMPLETA -->
+    <div class="modal-overlay" id="modal-anamnese" onclick="fecharModalAnamnese(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div>
+                    <h3 id="anamnese-paciente-nome">Ficha de Anamnese</h3>
+                    <p style="font-size: 0.85rem; color: var(--rose-700);">Avaliação Clínica & Estética Personalizada</p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-secondary" onclick="window.print()" style="padding: 6px 14px;">🖨️ Imprimir / PDF</button>
+                    <button class="btn-icon-soft" onclick="fecharModalAnamneseDirect()">✕</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <form id="form-anamnese" onsubmit="salvarAnamnese(event)">
+                    <div class="anamnese-section-title"><span>🌸</span> 1. Queixa Principal</div>
+                    <div class="anamnese-grid-2">
+                        <div class="anamnese-question"><label>1. Qual o motivo da consulta?</label><textarea id="ana-queixa-motivo" class="form-control" rows="2"></textarea></div>
+                        <div class="anamnese-question"><label>2. Qual o objetivo do tratamento?</label><textarea id="ana-queixa-objetivo" class="form-control" rows="2"></textarea></div>
+                    </div>
+                    <div class="anamnese-section-title"><span>🩺</span> 2. Histórico de Saúde</div>
+                    <div class="anamnese-grid-2">
+                        <div class="anamnese-question"><label>1. Possui alguma doença diagnosticada? Qual?</label><input type="text" id="ana-saude-doenca" class="form-control"></div>
+                        <div class="anamnese-question"><label>2. Possui alergias? Qual?</label><input type="text" id="ana-saude-alergia" class="form-control"></div>
+                        <div class="anamnese-question"><label>3. Faz uso de medicamentos? Quais?</label><input type="text" id="ana-saude-medicamento" class="form-control"></div>
+                        <div class="anamnese-question"><label>4. Já realizou cirurgia?</label><input type="text" id="ana-saude-cirurgia" class="form-control"></div>
+                        <div class="anamnese-question"><label>5. Possui marcapasso ou prótese metálica?</label><select id="ana-saude-marcapasso" class="form-control"><option value="Não">Não</option><option value="Sim (Marcapasso)">Sim (Marcapasso)</option><option value="Sim (Prótese Metálica)">Sim (Prótese Metálica)</option></select></div>
+                        <div class="anamnese-question"><label>6. Possui problemas cardíacos?</label><select id="ana-saude-cardiaco" class="form-control"><option value="Não">Não</option><option value="Sim">Sim</option></select></div>
+                        <div class="anamnese-question"><label>7. Possui distúrbios hormonais?</label><input type="text" id="ana-saude-hormonal" class="form-control"></div>
+                        <div class="anamnese-question"><label>8. Possui varizes?</label><select id="ana-saude-varizes" class="form-control"><option value="Não">Não</option><option value="Sim (Leves)">Sim (Leves)</option><option value="Sim (Severas)">Sim (Severas)</option></select></div>
+                        <div class="anamnese-question"><label>9. Está grávida ou amamentando?</label><select id="ana-saude-gravida" class="form-control"><option value="Não">Não</option><option value="Gestante">Sim, Gestante</option><option value="Lactante">Sim, Lactante</option></select></div>
+                        <div class="anamnese-question"><label>10. Já teve ou tem câncer?</label><input type="text" id="ana-saude-cancer" class="form-control"></div>
+                    </div>
+                    <div class="anamnese-section-title"><span>🌿</span> 3. Hábitos de Vida</div>
+                    <div class="anamnese-grid-2">
+                        <div class="anamnese-question"><label>1. Pratica atividade física?</label><input type="text" id="ana-habito-atividade" class="form-control"></div>
+                        <div class="anamnese-question"><label>2. Bebida alcoólica?</label><select id="ana-habito-alcool" class="form-control"><option value="Não">Não consome</option><option value="Socialmente">Socialmente</option><option value="Frequente">Frequente</option></select></div>
+                        <div class="anamnese-question"><label>3. Fuma?</label><select id="ana-habito-fumo" class="form-control"><option value="Não">Não</option><option value="Sim">Sim</option></select></div>
+                        <div class="anamnese-question"><label>4. Ingestão de água:</label><select id="ana-habito-agua" class="form-control"><option value="Pouca (< 1L)">Pouca (< 1L)</option><option value="Moderada (1L a 2L)">Moderada (1 a 2L)</option><option value="Muita (> 2L)">Muita (> 2L)</option></select></div>
+                        <div class="anamnese-question" style="grid-column: 1/-1;"><label>5. Qualidade do sono:</label><select id="ana-habito-sono" class="form-control"><option value="Boa">Boa</option><option value="Regular">Regular</option><option value="Ruim">Ruim</option></select></div>
+                    </div>
+                    <div class="anamnese-section-title"><span>✨</span> 4. Avaliação Facial</div>
+                    <div class="anamnese-grid-2">
+                        <div class="anamnese-question"><label>1. Tipo de pele:</label><select id="ana-facial-tipo" class="form-control"><option value="Normal">Normal</option><option value="Seca">Seca</option><option value="Oleosa">Oleosa</option><option value="Mista">Mista</option><option value="Sensível">Sensível</option></select></div>
+                        <div class="anamnese-question"><label>2. Fototipo:</label><select id="ana-facial-fototipo" class="form-control"><option value="Fototipo I">Fototipo I</option><option value="Fototipo II">Fototipo II</option><option value="Fototipo III">Fototipo III</option><option value="Fototipo IV">Fototipo IV</option><option value="Fototipo V">Fototipo V</option><option value="Fototipo VI">Fototipo VI</option></select></div>
+                        <div class="anamnese-question" style="grid-column: 1/-1;"><label>3. Alterações observadas:</label><input type="text" id="ana-facial-alteracoes" class="form-control"></div>
+                    </div>
+                    <div class="anamnese-section-title"><span>📐</span> 5. Avaliação Corporal</div>
+                    <div class="anamnese-grid-2">
+                        <div class="anamnese-question"><label>1. Peso e Altura:</label><input type="text" id="ana-corp-peso-altura" class="form-control"></div>
+                        <div class="anamnese-question"><label>2. Alterações corporais:</label><input type="text" id="ana-corp-alteracoes" class="form-control"></div>
+                    </div>
+                    <div class="anamnese-section-title"><span>💎</span> 6. Procedimentos Anteriores</div>
+                    <div class="anamnese-question" style="margin-bottom: 20px;"><label>Tratamentos estéticos anteriores e quando?</label><textarea id="ana-estetica-anteriores" class="form-control" rows="2"></textarea></div>
+                    <div class="anamnese-termo-box">
+                        <h4 style="font-family: var(--font-serif); font-size: 1.25rem; font-weight: 700; margin-bottom: 8px;">Termo de Responsabilidade</h4>
+                        <p style="font-size: 0.88rem; line-height: 1.6; font-style: italic; margin-bottom: 18px;">
+                            "Declaro que todas as informações prestadas nesta ficha são verdadeiras e estou ciente de que a omissão de informações pode comprometer a segurança e os resultados do tratamento."
+                        </p>
+                        <div class="anamnese-grid-2">
+                            <div><label style="font-size:0.75rem; font-weight:700;">Nome do Assinante</label><input type="text" id="ana-termo-assinatura" class="form-control"></div>
+                            <div><label style="font-size:0.75rem; font-weight:700;">Data</label><input type="date" id="ana-termo-data" class="form-control"></div>
+                        </div>
+                    </div>
+                    <div class="anamnese-actions-footer" style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+                        <button type="button" class="btn-secondary" onclick="fecharModalAnamneseDirect()">Cancelar</button>
+                        <button type="submit" class="btn-primary"><span>💾</span> Salvar Ficha na Nuvem</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL FOTOS COM REMOÇÃO -->
+    <div class="modal-overlay" id="modal-prontuario" onclick="fecharModalProntuario(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 id="modal-paciente-nome">Evolução Fotográfica</h3>
+                <button class="btn-secondary" onclick="fecharModalProntuarioDirect()">✕ Fechar</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-upload-foto" onsubmit="anexarFotoPaciente(event)" style="margin-bottom: 24px;">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Fase</label>
+                            <select id="foto-fase" class="form-control"><option value="Antes">Antes</option><option value="Sessão">Sessão</option><option value="Depois">Depois</option></select>
+                        </div>
+                        <div class="form-group"><label>Foto</label><input type="file" id="foto-arquivo" class="form-control" accept="image/*" required></div>
+                    </div>
+                    <button type="submit" class="btn-primary" id="btn-enviar-foto"><span>☁️</span> Salvar Foto no Supabase</button>
+                </form>
+                <div class="gallery-grid" id="modal-galeria-fotos"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT FIREBASE & SUPABASE -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyD7L8Am-JDRq4B10Gg1unshjHB6Gr2fYn0",
+            authDomain: "clinica-isadora.firebaseapp.com",
+            projectId: "clinica-isadora",
+            storageBucket: "clinica-isadora.firebasestorage.app",
+            messagingSenderId: "625434615518",
+            appId: "1:625434615518:web:1d2e0787dd292a051fac4f",
+            measurementId: "G-CLS01H76C7"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        const SUPABASE_URL = 'https://nmomkkpxfzdrjydexvtz.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_-tNrncNZ_Az_Q_bceUaZGA_PJzrbXwk';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let pacienteAtualId = null;
+        let todosServicosCache = [];
+        let todosPacientesCache = [];
+        let todosProdutosCache = [];
+        let filtroAgendaAtual = 'todos';
+
+        // AUTH
+        function switchAuthTab(tab) {
+            document.getElementById('tab-btn-login').classList.toggle('active', tab === 'login');
+            document.getElementById('tab-btn-register').classList.toggle('active', tab === 'register');
+            document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
+            document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
+        }
+
+        function fazerLogin(e) {
+            e.preventDefault();
+            let email = document.getElementById('login-user').value.trim();
+            const pass = document.getElementById('login-pass').value;
+            if (email.toLowerCase() === 'admin') email = 'admin@isadora.com';
+
+            auth.signInWithEmailAndPassword(email, pass).catch(err => {
+                const alertBox = document.getElementById('auth-alert');
+                alertBox.innerText = "Erro ao entrar: Verifique seu e-mail e senha.";
+                alertBox.className = "auth-alert error";
+            });
+        }
+
+        function fazerCadastro(e) {
+            e.preventDefault();
+            const nome = document.getElementById('reg-nome').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const pass = document.getElementById('reg-pass').value;
+
+            auth.createUserWithEmailAndPassword(email, pass)
+                .then(cred => {
+                    return Promise.all([
+                        cred.user.updateProfile({ displayName: nome }),
+                        db.collection('usuarios').doc(cred.user.uid).set({
+                            nome: nome,
+                            email: email,
+                            criadoEm: new Date()
+                        })
+                    ]);
+                })
+                .then(() => {
+                    document.getElementById('auth-alert').className = "auth-alert success";
+                    document.getElementById('auth-alert').innerText = "Conta criada com sucesso!";
+                })
+                .catch(err => {
+                    const alertBox = document.getElementById('auth-alert');
+                    alertBox.innerText = err.message;
+                    alertBox.className = "auth-alert error";
+                });
+        }
+
+        function fazerLogout() { auth.signOut(); }
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('app-screen').style.display = 'block';
+
+                let nomeFinal = user.displayName;
+                if (nomeFinal) {
+                    aplicarNomeUsuario(nomeFinal);
+                } else {
+                    db.collection('usuarios').doc(user.uid).get().then(doc => {
+                        if (doc.exists && doc.data().nome) {
+                            nomeFinal = doc.data().nome;
+                        } else if (user.email === 'admin@isadora.com' || user.email === 'admin') {
+                            nomeFinal = 'Pedro (Admin)';
+                        } else {
+                            nomeFinal = 'Dra. Isadora';
+                        }
+                        aplicarNomeUsuario(nomeFinal);
+                    }).catch(() => {
+                        aplicarNomeUsuario('Dra. Isadora');
+                    });
+                }
+                iniciarOuvintesNuvem();
+            } else {
+                document.getElementById('auth-screen').style.display = 'flex';
+                document.getElementById('app-screen').style.display = 'none';
+            }
+        });
+
+        function aplicarNomeUsuario(nome) {
+            document.getElementById('header-user-name').innerText = nome;
+            document.getElementById('welcome-user-name').innerText = nome;
+        }
+
+        function switchTab(tabId) {
+            ['resumo', 'agenda', 'clientes', 'produtos', 'financeiro'].forEach(id => {
+                document.getElementById(`tab-${id}`).style.display = id === tabId ? 'block' : 'none';
+            });
+            document.querySelectorAll('.tab-button').forEach((btn, idx) => {
+                const map = ['resumo', 'agenda', 'clientes', 'produtos', 'financeiro'];
+                btn.classList.toggle('active', map[idx] === tabId);
+            });
+        }
+
+        function iniciarOuvintesNuvem() {
+            db.collection('pacientes').onSnapshot(snapshot => {
+                todosPacientesCache = [];
+                snapshot.forEach(doc => todosPacientesCache.push({ id: doc.id, ...doc.data() }));
+                renderizarPacientes(todosPacientesCache);
+                document.getElementById('resumo-clientes').innerText = todosPacientesCache.length;
+                verificarAlertasRetorno();
+            });
+
+            db.collection('servicos').orderBy('data', 'asc').onSnapshot(snapshot => {
+                todosServicosCache = [];
+                snapshot.forEach(doc => todosServicosCache.push({ id: doc.id, ...doc.data() }));
+                renderizarServicos();
+                verificarAlertasRetorno();
+                atualizarDRE();
+            });
+
+            db.collection('produtos').onSnapshot(snapshot => {
+                todosProdutosCache = [];
+                snapshot.forEach(doc => todosProdutosCache.push({ id: doc.id, ...doc.data() }));
+                renderizarProdutos(todosProdutosCache);
+                verificarAlertasValidade(todosProdutosCache);
+                atualizarDRE();
+            });
+        }
+
+        function formatarNascimento(nascStr) {
+            if (!nascStr) return '-';
+            const [ano, mes, dia] = nascStr.split('-');
+            const hoje = new Date();
+            let idade = hoje.getFullYear() - parseInt(ano);
+            const m = hoje.getMonth() + 1 - parseInt(mes);
+            if (m < 0 || (m === 0 && hoje.getDate() < parseInt(dia))) {
+                idade--;
+            }
+            return `${dia}/${mes}/${ano} (${idade} anos)`;
+        }
+
+        function verificarAlertasValidade(produtos) {
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+            const alertasVencimento = [];
+
+            produtos.forEach(p => {
+                if (!p.validade) return;
+                const [ano, mes, dia] = p.validade.split('-');
+                const dataVal = new Date(ano, mes - 1, dia);
+                const diffDias = Math.ceil((dataVal - hoje) / (1000 * 60 * 60 * 24));
+
+                if (diffDias <= 30) {
+                    alertasVencimento.push({
+                        id: p.id,
+                        nome: p.nome,
+                        qtd: p.qtd,
+                        validade: `${dia}/${mes}/${ano}`,
+                        diasRestantes: diffDias
+                    });
+                }
+            });
+
+            document.getElementById('resumo-produtos-vencendo').innerText = alertasVencimento.length;
+
+            const tbody = document.getElementById('lista-alertas-vencimento');
+            if (alertasVencimento.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px; color:var(--text-muted);">🎉 Todos os insumos estão com prazo de validade em dia!</td></tr>`;
+            } else {
+                tbody.innerHTML = alertasVencimento.map(a => {
+                    let tagStatus = '';
+                    if (a.diasRestantes < 0) {
+                        tagStatus = `<span class="tag tag-danger">🚨 VENCIDO (há ${Math.abs(a.diasRestantes)} dias)</span>`;
+                    } else if (a.diasRestantes === 0) {
+                        tagStatus = `<span class="tag tag-danger">⚠️ VENCE HOJE!</span>`;
+                    } else {
+                        tagStatus = `<span class="tag tag-warning">⏳ Vence em ${a.diasRestantes} dias</span>`;
+                    }
+
+                    return `
+                    <tr>
+                        <td><strong>${a.nome}</strong></td>
+                        <td>${a.qtd} unidades</td>
+                        <td>${a.validade}</td>
+                        <td>${tagStatus}</td>
+                        <td><button class="btn-secondary" onclick="switchTab('produtos')">Ver Insumo</button></td>
+                    </tr>
+                    `;
+                }).join('');
+            }
+        }
+
+        function rolarParaVencimentos() {
+            document.getElementById('painel-vencimentos').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function filtrarAgenda(tipo) {
+            filtroAgendaAtual = tipo;
+            ['todos', 'hoje', 'semana', 'mes'].forEach(t => {
+                document.getElementById(`btn-filtro-${t}`).classList.toggle('active', t === tipo);
+            });
+            renderizarServicos();
+        }
+
+        function gerarLinkLembrete(servico) {
+            const dataObj = new Date(servico.data);
+            const dataFormatada = dataObj.toLocaleDateString('pt-BR');
+            const horaFormatada = dataObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+            const paciente = todosPacientesCache.find(p => p.nome.toLowerCase() === servico.cliente.toLowerCase());
+            const tel = paciente ? paciente.telefone.replace(/\D/g, '') : '';
+
+            const texto = `Olá, ${servico.cliente}! Tudo bem? ✨%0A%0APassando para confirmar seu atendimento na *Clínica Isadora*:%0A🗓️ *Data:* ${dataFormatada}%0A⏰ *Horário:* ${horaFormatada}%0A💎 *Procedimento:* ${servico.procedimento}%0A%0ARecomendamos evitar maquiagem pesada e bebidas alcoólicas 24h antes. Qualquer dúvida estamos à disposição! 🌸`;
+
+            return tel ? `https://wa.me/55${tel}?text=${texto}` : '#';
+        }
+
+        function verificarAlertasRetorno() {
+            const hoje = new Date();
+            const concluidos = todosServicosCache.filter(s => s.status === 'Concluído');
+            const listaRetornoTbody = document.getElementById('lista-alertas-retorno');
+            const alertas = [];
+
+            concluidos.forEach(s => {
+                const dataServ = new Date(s.data);
+                const diffDias = Math.floor((hoje - dataServ) / (1000 * 60 * 60 * 24));
+
+                if (diffDias >= 90) {
+                    const paciente = todosPacientesCache.find(p => p.nome.toLowerCase() === s.cliente.toLowerCase());
+                    const tel = paciente ? paciente.telefone.replace(/\D/g, '') : '';
+                    const zapMsg = `Olá, ${s.cliente}! ✨ Tudo bem? Já se passaram ${diffDias} dias desde a realização do seu procedimento (${s.procedimento}) na Clínica Isadora. Está na hora de agendarmos sua sessão de manutenção para manter os resultados impecáveis! 🌸`;
+                    const zapUrl = tel ? `https://wa.me/55${tel}?text=${encodeURIComponent(zapMsg)}` : '#';
+
+                    alertas.push({
+                        cliente: s.cliente,
+                        procedimento: s.procedimento,
+                        data: dataServ.toLocaleDateString('pt-BR'),
+                        dias: diffDias,
+                        zapUrl: zapUrl
+                    });
+                }
+            });
+
+            if (alertas.length === 0) {
+                listaRetornoTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px; color:var(--text-muted);">Nenhuma paciente precisando de retorno no momento.</td></tr>`;
+            } else {
+                listaRetornoTbody.innerHTML = alertas.map(a => `
+                    <tr>
+                        <td><strong>${a.cliente}</strong></td>
+                        <td>${a.procedimento}</td>
+                        <td>${a.data}</td>
+                        <td><span class="tag tag-warning">Há ${a.dias} dias</span></td>
+                        <td><a href="${a.zapUrl}" target="_blank" class="btn-whatsapp-small">💬 Chamar p/ Retoque</a></td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function adicionarCliente(e) {
+            e.preventDefault();
+            db.collection('pacientes').add({
+                nome: document.getElementById('cliente-nome').value.trim(),
+                telefone: document.getElementById('cliente-telefone').value.trim(),
+                nascimento: document.getElementById('cliente-nascimento').value,
+                fotos: [],
+                anamnese: null,
+                criadoEm: new Date()
+            }).then(() => e.target.reset());
+        }
+
+        function abrirEditarPaciente(id) {
+            const p = todosPacientesCache.find(pac => pac.id === id);
+            if (!p) return;
+            document.getElementById('edit-cliente-id').value = id;
+            document.getElementById('edit-cliente-nome').value = p.nome || '';
+            document.getElementById('edit-cliente-telefone').value = p.telefone || '';
+            document.getElementById('edit-cliente-nascimento').value = p.nascimento || '';
+            document.getElementById('modal-editar-cliente').style.display = 'flex';
+        }
+
+        function fecharModalEditarClienteDirect() {
+            document.getElementById('modal-editar-cliente').style.display = 'none';
+        }
+
+        function fecharModalEditarCliente(e) {
+            if (e.target.id === 'modal-editar-cliente') fecharModalEditarClienteDirect();
+        }
+
+        function salvarEdicaoCliente(e) {
+            e.preventDefault();
+            const id = document.getElementById('edit-cliente-id').value;
+            if (!id) return;
+
+            db.collection('pacientes').doc(id).update({
+                nome: document.getElementById('edit-cliente-nome').value.trim(),
+                telefone: document.getElementById('edit-cliente-telefone').value.trim(),
+                nascimento: document.getElementById('edit-cliente-nascimento').value
+            }).then(() => {
+                fecharModalEditarClienteDirect();
+            });
+        }
+
+        function removerCliente(id) {
+            if (confirm('Deseja excluir esta paciente?')) db.collection('pacientes').doc(id).delete();
+        }
+
+        function adicionarServico(e) {
+            e.preventDefault();
+            db.collection('servicos').add({
+                cliente: document.getElementById('agenda-cliente').value.trim(),
+                procedimento: document.getElementById('agenda-procedimento').value.trim(),
+                data: document.getElementById('agenda-data').value,
+                valor: parseFloat(document.getElementById('agenda-valor').value) || 0,
+                pagamento: document.getElementById('agenda-pagamento').value,
+                status: 'Agendado'
+            }).then(() => e.target.reset());
+        }
+
+        function alternarStatusServico(id, statusAtual) {
+            const novoStatus = statusAtual === 'Agendado' ? 'Concluído' : 'Agendado';
+            db.collection('servicos').doc(id).update({ status: novoStatus });
+        }
+
+        function removerServico(id) {
+            if (confirm('Deseja remover este agendamento?')) db.collection('servicos').doc(id).delete();
+        }
+
+        function adicionarProduto(e) {
+            e.preventDefault();
+            db.collection('produtos').add({
+                nome: document.getElementById('prod-nome').value.trim(),
+                qtd: parseInt(document.getElementById('prod-qtd').value) || 0,
+                custo: parseFloat(document.getElementById('prod-custo').value) || 0,
+                min: parseInt(document.getElementById('prod-min').value) || 0,
+                validade: document.getElementById('prod-validade').value
+            }).then(() => e.target.reset());
+        }
+
+        function alterarQuantidadeProduto(id, delta, qtdAtual) {
+            const novaQtd = Math.max(0, qtdAtual + delta);
+            db.collection('produtos').doc(id).update({ qtd: novaQtd });
+        }
+
+        function removerProduto(id) {
+            if (confirm('Deseja remover este item do estoque?')) db.collection('produtos').doc(id).delete();
+        }
+
+        // =========================================================================
+        // COMPRESSÃO AUTOMÁTICA & UPLOAD DE FOTOS (SUPABASE STORAGE)
+        // =========================================================================
+        function comprimirImagemParaBlob(file, maxDim = 1280, qualidade = 0.8) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let w = img.width;
+                        let h = img.height;
+                        if (w > h && w > maxDim) {
+                            h = Math.round(h * (maxDim / w));
+                            w = maxDim;
+                        } else if (h > maxDim) {
+                            w = Math.round(w * (maxDim / h));
+                            h = maxDim;
+                        }
+                        canvas.width = w;
+                        canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, w, h);
+                        canvas.toBlob(blob => {
+                            if (blob) resolve(blob);
+                            else reject(new Error("Falha ao compactar imagem."));
+                        }, 'image/jpeg', qualidade);
+                    };
+                    img.onerror = reject;
+                };
+                reader.onerror = reject;
+            });
+        }
+
+        async function anexarFotoPaciente(e) {
+            e.preventDefault();
+            const inputArquivo = document.getElementById('foto-arquivo');
+            const arquivo = inputArquivo.files[0];
+            if (!arquivo || !pacienteAtualId) return;
+
+            const btn = document.getElementById('btn-enviar-foto');
+            btn.innerHTML = '⏳ Otimizando e enviando...';
+            btn.disabled = true;
+
+            try {
+                // 1. Compacta automaticamente no navegador (Full HD ~250KB)
+                const blobCompactado = await comprimirImagemParaBlob(arquivo, 1280, 0.8);
+
+                const nomeArquivo = `${pacienteAtualId}/${Date.now()}.jpg`;
+
+                // 2. Upload para o Supabase Storage
+                const { data: uploadData, error: uploadError } = await supabaseClient
+                    .storage
+                    .from('fotos-pacientes')
+                    .upload(nomeArquivo, blobCompactado, {
+                        contentType: 'image/jpeg',
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+
+                if (uploadError) throw uploadError;
+
+                // 3. Obter URL pública
+                const { data: urlData } = supabaseClient
+                    .storage
+                    .from('fotos-pacientes')
+                    .getPublicUrl(nomeArquivo);
+
+                const fotoObj = {
+                    id: Date.now(),
+                    fase: document.getElementById('foto-fase').value,
+                    url: urlData.publicUrl,
+                    path: nomeArquivo,
+                    data: new Date().toISOString().slice(0, 10)
+                };
+
+                // 4. Salvar registro no Firestore
+                await db.collection('pacientes').doc(pacienteAtualId).update({
+                    fotos: firebase.firestore.FieldValue.arrayUnion(fotoObj)
+                });
+
+                document.getElementById('form-upload-foto').reset();
+            } catch (err) {
+                alert('Erro ao enviar imagem: ' + err.message);
+            } finally {
+                btn.innerHTML = '<span>☁️</span> Salvar Foto no Supabase';
+                btn.disabled = false;
+            }
+        }
+
+        // =========================================================================
+        // REMOÇÃO DE FOTO DO PRONTUÁRIO & DO SUPABASE
+        // =========================================================================
+        async function removerFotoPaciente(fotoId) {
+            if (!confirm('Deseja realmente excluir esta foto?')) return;
+            if (!pacienteAtualId) return;
+
+            try {
+                const docRef = db.collection('pacientes').doc(pacienteAtualId);
+                const docSnap = await docRef.get();
+                if (!docSnap.exists) return;
+
+                const paciente = docSnap.data();
+                const fotoParaRemover = (paciente.fotos || []).find(f => String(f.id) === String(fotoId));
+
+                if (fotoParaRemover) {
+                    // 1. Apaga o arquivo físico no Supabase Storage
+                    if (fotoParaRemover.path) {
+                        await supabaseClient.storage.from('fotos-pacientes').remove([fotoParaRemover.path]);
+                    } else if (fotoParaRemover.url) {
+                        try {
+                            const urlObj = new URL(fotoParaRemover.url);
+                            const parts = urlObj.pathname.split('/fotos-pacientes/');
+                            if (parts[1]) {
+                                await supabaseClient.storage.from('fotos-pacientes').remove([decodeURIComponent(parts[1])]);
+                            }
+                        } catch (e) {
+                            console.warn("Não foi possível excluir do storage:", e);
+                        }
+                    }
+
+                    // 2. Remove o registro do paciente no Firestore
+                    const fotosAtualizadas = (paciente.fotos || []).filter(f => String(f.id) !== String(fotoId));
+                    await docRef.update({ fotos: fotosAtualizadas });
+                }
+            } catch (err) {
+                alert('Erro ao excluir foto: ' + err.message);
+            }
+        }
+
+        function abrirProntuario(id, nome) {
+            pacienteAtualId = id;
+            document.getElementById('modal-paciente-nome').innerText = `Evolução: ${nome}`;
+            document.getElementById('modal-prontuario').style.display = 'flex';
+            
+            db.collection('pacientes').doc(id).onSnapshot(doc => {
+                if (!doc.exists) return;
+                const p = doc.data();
+                const galeria = document.getElementById('modal-galeria-fotos');
+                if (!p.fotos || p.fotos.length === 0) {
+                    galeria.innerHTML = `<p style="color:var(--text-muted); padding: 10px 0;">Nenhuma foto enviada ainda.</p>`;
+                } else {
+                    galeria.innerHTML = p.fotos.slice().reverse().map(f => `
+                        <div class="photo-card">
+                            <div class="photo-img-container">
+                                <img src="${f.url}" onclick="window.open('${f.url}', '_blank')" title="Clique para ampliar">
+                            </div>
+                            <div style="padding: 10px 14px; font-size: 0.82rem; display: flex; justify-content: space-between; align-items: center; background: #FFF;">
+                                <div><strong>${f.fase}</strong> • <span style="color:var(--text-muted); font-size:0.75rem;">${f.data}</span></div>
+                                <button type="button" class="btn-secondary" style="color:var(--status-danger-text); padding: 4px 8px; font-size: 0.75rem; border-color: rgba(189, 56, 74, 0.2);" onclick="removerFotoPaciente('${f.id}')" title="Excluir Foto">🗑️ Excluir</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            });
+        }
+
+        function fecharModalProntuarioDirect() { document.getElementById('modal-prontuario').style.display = 'none'; }
+        function fecharModalProntuario(e) { if (e.target.id === 'modal-prontuario') fecharModalProntuarioDirect(); }
+
+        function abrirAnamnese(id, nome) {
+            pacienteAtualId = id;
+            document.getElementById('anamnese-paciente-nome').innerText = `Ficha de Anamnese: ${nome}`;
+            document.getElementById('modal-anamnese').style.display = 'flex';
+
+            db.collection('pacientes').doc(id).get().then(doc => {
+                const a = (doc.data() && doc.data().anamnese) || {};
+                document.getElementById('ana-queixa-motivo').value = a.queixa_motivo || '';
+                document.getElementById('ana-queixa-objetivo').value = a.queixa_objetivo || '';
+                document.getElementById('ana-saude-doenca').value = a.saude_doenca || '';
+                document.getElementById('ana-saude-alergia').value = a.saude_alergia || '';
+                document.getElementById('ana-saude-medicamento').value = a.saude_medicamento || '';
+                document.getElementById('ana-saude-cirurgia').value = a.saude_cirurgia || '';
+                document.getElementById('ana-saude-marcapasso').value = a.saude_marcapasso || 'Não';
+                document.getElementById('ana-saude-cardiaco').value = a.saude_cardiaco || 'Não';
+                document.getElementById('ana-saude-hormonal').value = a.saude_hormonal || '';
+                document.getElementById('ana-saude-varizes').value = a.saude_varizes || 'Não';
+                document.getElementById('ana-saude-gravida').value = a.saude_gravida || 'Não';
+                document.getElementById('ana-saude-cancer').value = a.saude_cancer || '';
+                document.getElementById('ana-habito-atividade').value = a.habito_atividade || '';
+                document.getElementById('ana-habito-alcool').value = a.habito_alcool || 'Não';
+                document.getElementById('ana-habito-fumo').value = a.habito_fumo || 'Não';
+                document.getElementById('ana-habito-agua').value = a.habito_agua || 'Pouca (< 1L)';
+                document.getElementById('ana-habito-sono').value = a.habito_sono || 'Boa';
+                document.getElementById('ana-facial-tipo').value = a.facial_tipo || 'Normal';
+                document.getElementById('ana-facial-fototipo').value = a.facial_fototipo || 'Fototipo I';
+                document.getElementById('ana-facial-alteracoes').value = a.facial_alteracoes || '';
+                document.getElementById('ana-corp-peso-altura').value = a.corp_peso_altura || '';
+                document.getElementById('ana-corp-alteracoes').value = a.corp_alteracoes || '';
+                document.getElementById('ana-estetica-anteriores').value = a.estetica_anteriores || '';
+                document.getElementById('ana-termo-assinatura').value = a.termo_assinatura || nome;
+                document.getElementById('ana-termo-data').value = a.termo_data || new Date().toISOString().slice(0, 10);
+            });
+        }
+
+        function salvarAnamnese(e) {
+            e.preventDefault();
+            if (!pacienteAtualId) return;
+
+            db.collection('pacientes').doc(pacienteAtualId).update({
+                anamnese: {
+                    queixa_motivo: document.getElementById('ana-queixa-motivo').value,
+                    queixa_objetivo: document.getElementById('ana-queixa-objetivo').value,
+                    saude_doenca: document.getElementById('ana-saude-doenca').value,
+                    saude_alergia: document.getElementById('ana-saude-alergia').value,
+                    saude_medicamento: document.getElementById('ana-saude-medicamento').value,
+                    saude_cirurgia: document.getElementById('ana-saude-cirurgia').value,
+                    saude_marcapasso: document.getElementById('ana-saude-marcapasso').value,
+                    saude_cardiaco: document.getElementById('ana-saude-cardiaco').value,
+                    saude_hormonal: document.getElementById('ana-saude-hormonal').value,
+                    saude_varizes: document.getElementById('ana-saude-varizes').value,
+                    saude_gravida: document.getElementById('ana-saude-gravida').value,
+                    saude_cancer: document.getElementById('ana-saude-cancer').value,
+                    habito_atividade: document.getElementById('ana-habito-atividade').value,
+                    habito_alcool: document.getElementById('ana-habito-alcool').value,
+                    habito_fumo: document.getElementById('ana-habito-fumo').value,
+                    habito_agua: document.getElementById('ana-habito-agua').value,
+                    habito_sono: document.getElementById('ana-habito-sono').value,
+                    facial_tipo: document.getElementById('ana-facial-tipo').value,
+                    facial_fototipo: document.getElementById('ana-facial-fototipo').value,
+                    facial_alteracoes: document.getElementById('ana-facial-alteracoes').value,
+                    corp_peso_altura: document.getElementById('ana-corp-peso-altura').value,
+                    corp_alteracoes: document.getElementById('ana-corp-alteracoes').value,
+                    estetica_anteriores: document.getElementById('ana-estetica-anteriores').value,
+                    termo_assinatura: document.getElementById('ana-termo-assinatura').value,
+                    termo_data: document.getElementById('ana-termo-data').value
+                }
+            }).then(() => {
+                alert('Ficha salva na nuvem com sucesso!');
+                fecharModalAnamneseDirect();
+            });
+        }
+
+        function fecharModalAnamneseDirect() { document.getElementById('modal-anamnese').style.display = 'none'; }
+        function fecharModalAnamnese(e) { if (e.target.id === 'modal-anamnese') fecharModalAnamneseDirect(); }
+
+        function renderizarPacientes(lista) {
+            document.getElementById('lista-pacientes-tabela').innerHTML = lista.map(c => `
+                <tr>
+                    <td><strong>${c.nome}</strong></td>
+                    <td>${c.telefone}</td>
+                    <td><span class="tag tag-info">${formatarNascimento(c.nascimento)}</span></td>
+                    <td>
+                        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                            <button class="btn-anamnese" onclick="abrirAnamnese('${c.id}', '${c.nome}')">📋 Anamnese</button>
+                            <button class="btn-prontuario" onclick="abrirProntuario('${c.id}', '${c.nome}')">📸 Fotos (${(c.fotos || []).length})</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div style="display:flex; gap:6px;">
+                            <button class="btn-secondary" onclick="abrirEditarPaciente('${c.id}')">✏️ Editar</button>
+                            <button class="btn-secondary" style="color:var(--status-danger-text);" onclick="removerCliente('${c.id}')">Excluir</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderizarServicos() {
+            const hoje = new Date();
+            let listaFiltrada = [...todosServicosCache];
+
+            if (filtroAgendaAtual === 'hoje') {
+                const hojeStr = hoje.toISOString().slice(0, 10);
+                listaFiltrada = listaFiltrada.filter(s => s.data.startsWith(hojeStr));
+            } else if (filtroAgendaAtual === 'semana') {
+                const inicioSemana = new Date(hoje);
+                inicioSemana.setDate(hoje.getDate() - hoje.getDay());
+                const fimSemana = new Date(inicioSemana);
+                fimSemana.setDate(inicioSemana.getDate() + 6);
+                
+                listaFiltrada = listaFiltrada.filter(s => {
+                    const d = new Date(s.data);
+                    return d >= inicioSemana && d <= fimSemana;
+                });
+            } else if (filtroAgendaAtual === 'mes') {
+                const mesAtual = hoje.getMonth();
+                const anoAtual = hoje.getFullYear();
+                listaFiltrada = listaFiltrada.filter(s => {
+                    const d = new Date(s.data);
+                    return d.getMonth() === mesAtual && d.getFullYear() === anoAtual;
+                });
+            }
+
+            document.getElementById('resumo-agendamentos').innerText = todosServicosCache.filter(s => s.status === 'Agendado').length;
+
+            document.getElementById('lista-agenda-completa').innerHTML = listaFiltrada.length === 0 
+                ? `<tr><td colspan="7" style="text-align:center; padding:24px; color:var(--text-muted);">Nenhum agendamento encontrado para este filtro.</td></tr>`
+                : listaFiltrada.map(s => {
+                    const linkLembrete = gerarLinkLembrete(s);
+                    return `
+                    <tr>
+                        <td>${s.data.replace('T', ' às ')}</td>
+                        <td><strong>${s.cliente}</strong></td>
+                        <td>${s.procedimento}</td>
+                        <td>R$ ${(s.valor || 0).toFixed(2)}</td>
+                        <td><span class="tag tag-info">${s.pagamento || 'A Definir'}</span></td>
+                        <td><span onclick="alternarStatusServico('${s.id}', '${s.status}')" class="tag ${s.status === 'Concluído' ? 'tag-success' : 'tag-warning'}" style="cursor:pointer;">${s.status} ↺</span></td>
+                        <td>
+                            <div style="display:flex; gap:6px;">
+                                <a href="${linkLembrete}" target="_blank" class="btn-whatsapp-lembrete" title="Enviar lembrete formatado">📲 Lembrete</a>
+                                <button class="btn-secondary" style="color:var(--status-danger-text);" onclick="removerServico('${s.id}')">Excluir</button>
+                            </div>
+                        </td>
+                    </tr>
+                    `;
+                }).join('');
+
+            document.getElementById('resumo-ultimos-servicos').innerHTML = todosServicosCache.slice(-5).reverse().map(s => `
+                <tr>
+                    <td>${s.data.replace('T', ' às ')}</td>
+                    <td><strong>${s.cliente}</strong></td>
+                    <td>${s.procedimento}</td>
+                    <td>R$ ${(s.valor || 0).toFixed(2)}</td>
+                    <td><span class="tag tag-info">${s.pagamento || 'A Definir'}</span></td>
+                    <td><span onclick="alternarStatusServico('${s.id}', '${s.status}')" class="tag ${s.status === 'Concluído' ? 'tag-success' : 'tag-warning'}" style="cursor:pointer;">${s.status} ↺</span></td>
+                </tr>
+            `).join('');
+
+            const concluidos = todosServicosCache.filter(s => s.status === 'Concluído');
+            const total = concluidos.reduce((acc, s) => acc + (s.valor || 0), 0);
+            const previsto = todosServicosCache.filter(s => s.status === 'Agendado').reduce((acc, s) => acc + (s.valor || 0), 0);
+            
+            document.getElementById('fin-faturamento-total').innerText = `R$ ${total.toFixed(2)}`;
+            document.getElementById('fin-custo-total').innerText = `R$ ${todosProdutosCache.reduce((acc, p) => acc + ((p.qtd || 0) * (p.custo || 0)), 0).toFixed(2)}`;
+            document.getElementById('fin-faturamento-previsto').innerText = `R$ ${previsto.toFixed(2)}`;
+            document.getElementById('fin-ticket-medio').innerText = `R$ ${(concluidos.length ? total / concluidos.length : 0).toFixed(2)}`;
+            document.getElementById('fin-total-concluidos').innerText = concluidos.length;
+
+            const totPix = concluidos.filter(s => s.pagamento === 'Pix').reduce((acc, s) => acc + (s.valor || 0), 0);
+            const totCredito = concluidos.filter(s => s.pagamento === 'Cartão de Crédito').reduce((acc, s) => acc + (s.valor || 0), 0);
+            const totDebito = concluidos.filter(s => s.pagamento === 'Cartão de Débito').reduce((acc, s) => acc + (s.valor || 0), 0);
+            const totDinheiro = concluidos.filter(s => s.pagamento === 'Dinheiro').reduce((acc, s) => acc + (s.valor || 0), 0);
+
+            document.getElementById('fin-pix').innerText = `R$ ${totPix.toFixed(2)}`;
+            document.getElementById('fin-credito').innerText = `R$ ${totCredito.toFixed(2)}`;
+            document.getElementById('fin-debito').innerText = `R$ ${totDebito.toFixed(2)}`;
+            document.getElementById('fin-dinheiro').innerText = `R$ ${totDinheiro.toFixed(2)}`;
+        }
+
+        function renderizarProdutos(lista) {
+            const baixos = lista.filter(p => p.qtd <= p.min);
+            document.getElementById('resumo-estoque-baixo').innerText = baixos.length;
+
+            document.getElementById('lista-produtos-tabela').innerHTML = lista.map(p => {
+                const custoUnit = p.custo || 0;
+                const totalInvestido = (p.qtd || 0) * custoUnit;
+
+                return `
+                <tr>
+                    <td><strong>${p.nome}</strong></td>
+                    <td>
+                        <button class="btn-secondary" style="padding:2px 8px;" onclick="alterarQuantidadeProduto('${p.id}', -1, ${p.qtd})">-</button>
+                        <span style="font-weight:700; margin:0 8px;">${p.qtd}</span>
+                        <button class="btn-secondary" style="padding:2px 8px;" onclick="alterarQuantidadeProduto('${p.id}', 1, ${p.qtd})">+</button>
+                    </td>
+                    <td style="color:var(--text-muted);">R$ ${custoUnit.toFixed(2)}</td>
+                    <td style="font-weight:700; color:var(--rose-700);">R$ ${totalInvestido.toFixed(2)}</td>
+                    <td>${p.validade}</td>
+                    <td><span class="tag ${p.qtd <= p.min ? 'tag-warning' : 'tag-success'}">${p.qtd <= p.min ? 'Estoque Baixo' : 'Normal'}</span></td>
+                    <td><button class="btn-secondary" style="color:var(--status-danger-text);" onclick="removerProduto('${p.id}')">Excluir</button></td>
+                </tr>
+                `;
+            }).join('');
+        }
+
+        function atualizarDRE() {
+            const concluidos = todosServicosCache.filter(s => s.status === 'Concluído');
+            const agendados = todosServicosCache.filter(s => s.status === 'Agendado');
+
+            const totalReceitaConcluida = concluidos.reduce((acc, s) => acc + (s.valor || 0), 0);
+            const totalReceitaPrevista = agendados.reduce((acc, s) => acc + (s.valor || 0), 0);
+            const totalCustoEstoque = todosProdutosCache.reduce((acc, p) => acc + ((p.qtd || 0) * (p.custo || 0)), 0);
+
+            const lucroLiquido = totalReceitaConcluida - totalCustoEstoque;
+            const margemLucro = totalReceitaConcluida > 0 ? ((lucroLiquido / totalReceitaConcluida) * 100) : 0;
+            const projecaoFutura = (totalReceitaConcluida + totalReceitaPrevista) - totalCustoEstoque;
+
+            document.getElementById('fin-faturamento-total').innerText = `R$ ${totalReceitaConcluida.toFixed(2)}`;
+            document.getElementById('fin-custo-total').innerText = `R$ ${totalCustoEstoque.toFixed(2)}`;
+            
+            const elLucro = document.getElementById('fin-lucro-liquido');
+            elLucro.innerText = `R$ ${lucroLiquido.toFixed(2)}`;
+            elLucro.style.color = lucroLiquido >= 0 ? 'var(--status-success-text)' : 'var(--status-danger-text)';
+
+            const elMargem = document.getElementById('fin-margem-lucro');
+            elMargem.innerText = `${margemLucro.toFixed(1)}%`;
+            elMargem.style.color = margemLucro >= 0 ? 'var(--status-success-text)' : 'var(--status-danger-text)';
+
+            document.getElementById('dre-receita-realizada').innerText = `R$ ${totalReceitaConcluida.toFixed(2)}`;
+            document.getElementById('dre-custo-insumos').innerText = `- R$ ${totalCustoEstoque.toFixed(2)}`;
+            
+            const elDreResultado = document.getElementById('dre-resultado-liquido');
+            elDreResultado.innerText = `R$ ${lucroLiquido.toFixed(2)}`;
+            elDreResultado.style.color = lucroLiquido >= 0 ? 'var(--status-success-text)' : 'var(--status-danger-text)';
+
+            document.getElementById('dre-receita-prevista').innerText = `+ R$ ${totalReceitaPrevista.toFixed(2)}`;
+            
+            const elDreProjecao = document.getElementById('dre-projecao-futura');
+            elDreProjecao.innerText = `R$ ${projecaoFutura.toFixed(2)}`;
+            elDreProjecao.style.color = projecaoFutura >= 0 ? 'var(--status-success-text)' : 'var(--status-danger-text)';
+        }
+    </script>
+</body>
+</html>
