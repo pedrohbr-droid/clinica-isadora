@@ -442,7 +442,7 @@
 </head>
 <body>
 
-    <!-- TELA DE LOGIN (SEM CADASTRO) -->
+    <!-- TELA DE LOGIN -->
     <div id="auth-screen" class="auth-wrapper">
         <div class="auth-card">
             <div class="auth-emblem">
@@ -559,7 +559,7 @@
                     <div class="table-responsive">
                         <table>
                             <thead>
-                                <tr><th>Paciente</th><th>Procedimento Anterior</th><th>Última Sessão</th><th>Tempo Decorrido</th><th>Ação Recomendada</th><th>Edição</th></tr>
+                                <tr><th>Paciente</th><th>Procedimento Anterior</th><th>Última Sessão</th><th>Tempo Decorrido</th><th>Ações</th></tr>
                             </thead>
                             <tbody id="lista-alertas-retorno"></tbody>
                         </table>
@@ -574,7 +574,7 @@
                     <div class="table-responsive">
                         <table>
                             <thead>
-                                <tr><th>Data</th><th>Paciente</th><th>Procedimento</th><th>Valor</th><th>Pagamento</th><th>Status & Edição</th></tr>
+                                <tr><th>Data</th><th>Paciente</th><th>Procedimento</th><th>Valor</th><th>Pagamento</th><th>Status & Ações</th></tr>
                             </thead>
                             <tbody id="resumo-ultimos-servicos"></tbody>
                         </table>
@@ -657,7 +657,7 @@
                     <form onsubmit="adicionarProduto(event)">
                         <div class="form-grid">
                             <div class="form-group"><label>Nome do Produto / Marca</label><input type="text" id="prod-nome" class="form-control" required placeholder="Ex: Ácido Hialurônico Juvederm"></div>
-                            <div class="form-group"><label>Qtd em Estoque</label><input type="number" id="prod-qtd" class="form-control" required placeholder="0"></div>
+                            <div class="form-group"><label>Qtd em Estoque Inicial</label><input type="number" id="prod-qtd" class="form-control" required placeholder="0"></div>
                             <div class="form-group"><label>Valor Pago / Custo Unitário (R$)</label><input type="number" step="0.01" id="prod-custo" class="form-control" required placeholder="Ex: 180,00"></div>
                             <div class="form-group"><label>Estoque Mínimo (Alerta)</label><input type="number" id="prod-min" class="form-control" required placeholder="2"></div>
                             <div class="form-group"><label>Data de Validade</label><input type="date" id="prod-validade" class="form-control" required></div>
@@ -669,7 +669,7 @@
                     <div class="panel-header"><div class="panel-title">📦 Controle de Insumos & Custos de Compra</div></div>
                     <div class="table-responsive">
                         <table>
-                            <thead><tr><th>Produto</th><th>Estoque</th><th>Custo Unit.</th><th>Total Investido</th><th>Validade</th><th>Status</th><th>Ações</th></tr></thead>
+                            <thead><tr><th>Produto</th><th>Estoque Atual</th><th>Custo Unit.</th><th>Total Investido</th><th>Validade</th><th>Status</th><th>Ações</th></tr></thead>
                             <tbody id="lista-produtos-tabela"></tbody>
                         </table>
                     </div>
@@ -685,14 +685,14 @@
                         <div style="font-size:0.75rem; color:var(--text-light);">Procedimentos concluídos</div>
                     </div>
                     <div class="metric-card">
-                        <span class="metric-label">Despesa / Custo de Produtos</span>
+                        <span class="metric-label">Despesa (Insumos Comprados)</span>
                         <div class="metric-value" id="fin-custo-total" style="color: var(--status-danger-text);">R$ 0,00</div>
-                        <div style="font-size:0.75rem; color:var(--text-light);">Total investido em estoque</div>
+                        <div style="font-size:0.75rem; color:var(--text-light);">Total fixo investido em compras</div>
                     </div>
                     <div class="metric-card">
                         <span class="metric-label">Lucro Líquido Realizado</span>
                         <div class="metric-value" id="fin-lucro-liquido">R$ 0,00</div>
-                        <div style="font-size:0.75rem; color:var(--text-light);">Receitas menos custos</div>
+                        <div style="font-size:0.75rem; color:var(--text-light);">Receitas menos compras</div>
                     </div>
                     <div class="metric-card">
                         <span class="metric-label">Margem de Lucro (%)</span>
@@ -717,23 +717,23 @@
                                     <td style="color: var(--status-success-text); font-weight:700;" id="dre-receita-realizada">R$ 0,00</td>
                                 </tr>
                                 <tr>
-                                    <td><strong>(-) CUSTO DAS MERCADORIAS / INSUMOS</strong></td>
-                                    <td>Total de valores pagos em produtos cadastrados no estoque</td>
+                                    <td><strong>(-) CUSTO FIXO DE COMPRAS (INSUMOS)</strong></td>
+                                    <td>Soma do custo original pago por todos os insumos adquiridos</td>
                                     <td style="color: var(--status-danger-text); font-weight:700;" id="dre-custo-insumos">- R$ 0,00</td>
                                 </tr>
                                 <tr class="dre-total">
                                     <td><strong>(=) RESULTADO OPERACIONAL / LUCRO LÍQUIDO</strong></td>
-                                    <td>Diferença real entre valores recebidos e gastos com produtos</td>
+                                    <td>Diferença real entre os valores que entraram e saíram do caixa</td>
                                     <td id="dre-resultado-liquido">R$ 0,00</td>
                                 </tr>
                                 <tr>
                                     <td><strong>(+) RECEITAS PREVISTAS (A RECEBER)</strong></td>
-                                    <td>Previsão de entrada de procedimentos agendados</td>
+                                    <td>Previsão de entrada de procedimentos que ainda estão agendados</td>
                                     <td style="color: var(--gold-dark); font-weight:600;" id="dre-receita-prevista">+ R$ 0,00</td>
                                 </tr>
                                 <tr class="dre-highlight">
                                     <td><strong>(=) PROJEÇÃO DE RESULTADO FUTURO</strong></td>
-                                    <td>Lucro estimado considerando todos os agendamentos marcados</td>
+                                    <td>Lucro total estimado considerando todos os agendamentos pendentes</td>
                                     <td id="dre-projecao-futura" style="font-weight:700;">R$ 0,00</td>
                                 </tr>
                             </tbody>
@@ -970,7 +970,7 @@
         let todosProdutosCache = [];
         let filtroAgendaAtual = 'todos';
 
-        // AUTH
+        // AUTH (APENAS LOGIN)
         function fazerLogin(e) {
             e.preventDefault();
             let email = document.getElementById('login-user').value.trim();
@@ -1153,7 +1153,7 @@
             concluidos.forEach(s => {
                 const dataServ = new Date(s.data);
                 
-                // Validação para evitar datas bizarras (como ano 226)
+                // Ignorar datas nulas ou anos bizarros (como 226)
                 if (isNaN(dataServ.getTime()) || dataServ.getFullYear() < 2000) return;
 
                 const diffDias = Math.floor((hoje - dataServ) / (1000 * 60 * 60 * 24));
@@ -1176,7 +1176,7 @@
             });
 
             if (alertas.length === 0) {
-                listaRetornoTbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 20px; color:var(--text-muted);">Nenhuma paciente precisando de retorno no momento.</td></tr>`;
+                listaRetornoTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px; color:var(--text-muted);">Nenhuma paciente precisando de retorno no momento.</td></tr>`;
             } else {
                 listaRetornoTbody.innerHTML = alertas.map(a => `
                     <tr>
@@ -1184,13 +1184,18 @@
                         <td>${a.procedimento}</td>
                         <td>${a.data}</td>
                         <td><span class="tag tag-warning">Há ${a.dias} dias</span></td>
-                        <td><a href="${a.zapUrl}" target="_blank" class="btn-whatsapp-small">💬 Chamar p/ Retoque</a></td>
-                        <td><button class="btn-secondary" style="padding: 4px 8px; font-size: 0.7rem;" onclick="abrirEditarServico('${a.id}')">✏️ Editar</button></td>
+                        <td>
+                            <div style="display:flex; gap:6px;">
+                                <a href="${a.zapUrl}" target="_blank" class="btn-whatsapp-small">💬 Chamar p/ Retoque</a>
+                                <button class="btn-secondary" style="padding: 4px 8px; font-size: 0.7rem;" onclick="abrirEditarServico('${a.id}')">✏️ Editar</button>
+                            </div>
+                        </td>
                     </tr>
                 `).join('');
             }
         }
 
+        // FUNÇÕES PACIENTE
         function adicionarCliente(e) {
             e.preventDefault();
             db.collection('pacientes').add({
@@ -1213,32 +1218,25 @@
             document.getElementById('modal-editar-cliente').style.display = 'flex';
         }
 
-        function fecharModalEditarClienteDirect() {
-            document.getElementById('modal-editar-cliente').style.display = 'none';
-        }
-
-        function fecharModalEditarCliente(e) {
-            if (e.target.id === 'modal-editar-cliente') fecharModalEditarClienteDirect();
-        }
+        function fecharModalEditarClienteDirect() { document.getElementById('modal-editar-cliente').style.display = 'none'; }
+        function fecharModalEditarCliente(e) { if (e.target.id === 'modal-editar-cliente') fecharModalEditarClienteDirect(); }
 
         function salvarEdicaoCliente(e) {
             e.preventDefault();
             const id = document.getElementById('edit-cliente-id').value;
             if (!id) return;
-
             db.collection('pacientes').doc(id).update({
                 nome: document.getElementById('edit-cliente-nome').value.trim(),
                 telefone: document.getElementById('edit-cliente-telefone').value.trim(),
                 nascimento: document.getElementById('edit-cliente-nascimento').value
-            }).then(() => {
-                fecharModalEditarClienteDirect();
-            });
+            }).then(() => { fecharModalEditarClienteDirect(); });
         }
 
         function removerCliente(id) {
             if (confirm('Deseja excluir esta paciente?')) db.collection('pacientes').doc(id).delete();
         }
 
+        // FUNÇÕES AGENDA / SERVIÇOS
         function adicionarServico(e) {
             e.preventDefault();
             db.collection('servicos').add({
@@ -1250,7 +1248,7 @@
                 status: 'Agendado'
             }).then(() => e.target.reset());
         }
-        
+
         function abrirEditarServico(id) {
             const s = todosServicosCache.find(serv => serv.id === id);
             if (!s) return;
@@ -1263,28 +1261,20 @@
             document.getElementById('modal-editar-servico').style.display = 'flex';
         }
 
-        function fecharModalEditarServicoDirect() {
-            document.getElementById('modal-editar-servico').style.display = 'none';
-        }
-
-        function fecharModalEditarServico(e) {
-            if (e.target.id === 'modal-editar-servico') fecharModalEditarServicoDirect();
-        }
+        function fecharModalEditarServicoDirect() { document.getElementById('modal-editar-servico').style.display = 'none'; }
+        function fecharModalEditarServico(e) { if (e.target.id === 'modal-editar-servico') fecharModalEditarServicoDirect(); }
 
         function salvarEdicaoServico(e) {
             e.preventDefault();
             const id = document.getElementById('edit-servico-id').value;
             if (!id) return;
-
             db.collection('servicos').doc(id).update({
                 cliente: document.getElementById('edit-servico-cliente').value.trim(),
                 procedimento: document.getElementById('edit-servico-procedimento').value.trim(),
                 data: document.getElementById('edit-servico-data').value,
                 valor: parseFloat(document.getElementById('edit-servico-valor').value) || 0,
                 pagamento: document.getElementById('edit-servico-pagamento').value
-            }).then(() => {
-                fecharModalEditarServicoDirect();
-            });
+            }).then(() => { fecharModalEditarServicoDirect(); });
         }
 
         function alternarStatusServico(id, statusAtual) {
@@ -1296,24 +1286,37 @@
             if (confirm('Deseja remover este agendamento?')) db.collection('servicos').doc(id).delete();
         }
 
+        // FUNÇÕES ESTOQUE / PRODUTOS (COM LÓGICA DE INVESTIMENTO FIXO)
         function adicionarProduto(e) {
             e.preventDefault();
+            const qtdInic = parseInt(document.getElementById('prod-qtd').value) || 0;
             db.collection('produtos').add({
                 nome: document.getElementById('prod-nome').value.trim(),
-                qtd: parseInt(document.getElementById('prod-qtd').value) || 0,
+                qtd: qtdInic, // Estoque atual
+                qtd_comprada: qtdInic, // Total investido histórico
                 custo: parseFloat(document.getElementById('prod-custo').value) || 0,
                 min: parseInt(document.getElementById('prod-min').value) || 0,
                 validade: document.getElementById('prod-validade').value
             }).then(() => e.target.reset());
         }
 
-        function alterarQuantidadeProduto(id, delta, qtdAtual) {
+        function alterarQuantidadeProduto(id, delta, qtdAtual, qtdCompradaAtual) {
             const novaQtd = Math.max(0, qtdAtual + delta);
-            db.collection('produtos').doc(id).update({ qtd: novaQtd });
+            let dadosUpdate = { qtd: novaQtd };
+            
+            // Se clicou em "+", assumimos que ela comprou mais. Aumenta o investido histórico.
+            if (delta > 0) {
+                dadosUpdate.qtd_comprada = qtdCompradaAtual + delta;
+            }
+            
+            // Se clicou em "-", apenas consome físico. O investido não desce.
+            db.collection('produtos').doc(id).update(dadosUpdate);
         }
 
         function removerProduto(id) {
-            if (confirm('Deseja remover este item do estoque?')) db.collection('produtos').doc(id).delete();
+            if (confirm('Deseja remover este item do estoque? Atenção: Isso removerá também o valor deste item do custo total na DRE.')) {
+                db.collection('produtos').doc(id).delete();
+            }
         }
 
         // =========================================================================
@@ -1363,12 +1366,9 @@
             btn.disabled = true;
 
             try {
-                // 1. Compacta automaticamente no navegador (Full HD ~250KB)
                 const blobCompactado = await comprimirImagemParaBlob(arquivo, 1280, 0.8);
-
                 const nomeArquivo = `${pacienteAtualId}/${Date.now()}.jpg`;
 
-                // 2. Upload para o Supabase Storage
                 const { data: uploadData, error: uploadError } = await supabaseClient
                     .storage
                     .from('fotos-pacientes')
@@ -1380,7 +1380,6 @@
 
                 if (uploadError) throw uploadError;
 
-                // 3. Obter URL pública
                 const { data: urlData } = supabaseClient
                     .storage
                     .from('fotos-pacientes')
@@ -1394,7 +1393,6 @@
                     data: new Date().toISOString().slice(0, 10)
                 };
 
-                // 4. Salvar registro no Firestore
                 await db.collection('pacientes').doc(pacienteAtualId).update({
                     fotos: firebase.firestore.FieldValue.arrayUnion(fotoObj)
                 });
@@ -1424,7 +1422,6 @@
                 const fotoParaRemover = (paciente.fotos || []).find(f => String(f.id) === String(fotoId));
 
                 if (fotoParaRemover) {
-                    // 1. Apaga o arquivo físico no Supabase Storage
                     if (fotoParaRemover.path) {
                         await supabaseClient.storage.from('fotos-pacientes').remove([fotoParaRemover.path]);
                     } else if (fotoParaRemover.url) {
@@ -1439,7 +1436,6 @@
                         }
                     }
 
-                    // 2. Remove o registro do paciente no Firestore
                     const fotosAtualizadas = (paciente.fotos || []).filter(f => String(f.id) !== String(fotoId));
                     await docRef.update({ fotos: fotosAtualizadas });
                 }
@@ -1554,6 +1550,7 @@
         function fecharModalAnamneseDirect() { document.getElementById('modal-anamnese').style.display = 'none'; }
         function fecharModalAnamnese(e) { if (e.target.id === 'modal-anamnese') fecharModalAnamneseDirect(); }
 
+        // RENDERIZAÇÃO
         function renderizarPacientes(lista) {
             document.getElementById('lista-pacientes-tabela').innerHTML = lista.map(c => `
                 <tr>
@@ -1635,8 +1632,10 @@
                     <td>R$ ${(s.valor || 0).toFixed(2)}</td>
                     <td><span class="tag tag-info">${s.pagamento || 'A Definir'}</span></td>
                     <td>
-                        <span onclick="alternarStatusServico('${s.id}', '${s.status}')" class="tag ${s.status === 'Concluído' ? 'tag-success' : 'tag-warning'}" style="cursor:pointer; margin-bottom: 4px; display: block;">${s.status} ↺</span>
-                        <button class="btn-secondary" style="padding: 4px 8px; font-size: 0.7rem; width: 100%; justify-content: center;" onclick="abrirEditarServico('${s.id}')">✏️ Editar</button>
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <span onclick="alternarStatusServico('${s.id}', '${s.status}')" class="tag ${s.status === 'Concluído' ? 'tag-success' : 'tag-warning'}" style="cursor:pointer; flex:1;">${s.status} ↺</span>
+                            <button class="btn-secondary" style="padding: 4px 8px; font-size: 0.75rem;" onclick="abrirEditarServico('${s.id}')">✏️ Editar</button>
+                        </div>
                     </td>
                 </tr>
             `).join('');
@@ -1646,10 +1645,7 @@
             const previsto = todosServicosCache.filter(s => s.status === 'Agendado').reduce((acc, s) => acc + (s.valor || 0), 0);
             
             document.getElementById('fin-faturamento-total').innerText = `R$ ${total.toFixed(2)}`;
-            document.getElementById('fin-custo-total').innerText = `R$ ${todosProdutosCache.reduce((acc, p) => acc + ((p.qtd || 0) * (p.custo || 0)), 0).toFixed(2)}`;
             document.getElementById('fin-faturamento-previsto').innerText = `R$ ${previsto.toFixed(2)}`;
-            document.getElementById('fin-ticket-medio').innerText = `R$ ${(concluidos.length ? total / concluidos.length : 0).toFixed(2)}`;
-            document.getElementById('fin-total-concluidos').innerText = concluidos.length;
 
             const totPix = concluidos.filter(s => s.pagamento === 'Pix').reduce((acc, s) => acc + (s.valor || 0), 0);
             const totCredito = concluidos.filter(s => s.pagamento === 'Cartão de Crédito').reduce((acc, s) => acc + (s.valor || 0), 0);
@@ -1668,15 +1664,17 @@
 
             document.getElementById('lista-produtos-tabela').innerHTML = lista.map(p => {
                 const custoUnit = p.custo || 0;
-                const totalInvestido = (p.qtd || 0) * custoUnit;
+                // Busca o qtd_comprada se existir, senão cai na qtd normal para manter retrocompatibilidade
+                const qtdCompradaReal = p.qtd_comprada !== undefined ? p.qtd_comprada : (p.qtd || 0);
+                const totalInvestido = qtdCompradaReal * custoUnit;
 
                 return `
                 <tr>
                     <td><strong>${p.nome}</strong></td>
                     <td>
-                        <button class="btn-secondary" style="padding:2px 8px;" onclick="alterarQuantidadeProduto('${p.id}', -1, ${p.qtd})">-</button>
+                        <button class="btn-secondary" style="padding:2px 8px;" onclick="alterarQuantidadeProduto('${p.id}', -1, ${p.qtd}, ${qtdCompradaReal})">-</button>
                         <span style="font-weight:700; margin:0 8px;">${p.qtd}</span>
-                        <button class="btn-secondary" style="padding:2px 8px;" onclick="alterarQuantidadeProduto('${p.id}', 1, ${p.qtd})">+</button>
+                        <button class="btn-secondary" style="padding:2px 8px;" onclick="alterarQuantidadeProduto('${p.id}', 1, ${p.qtd}, ${qtdCompradaReal})">+</button>
                     </td>
                     <td style="color:var(--text-muted);">R$ ${custoUnit.toFixed(2)}</td>
                     <td style="font-weight:700; color:var(--rose-700);">R$ ${totalInvestido.toFixed(2)}</td>
@@ -1694,13 +1692,17 @@
 
             const totalReceitaConcluida = concluidos.reduce((acc, s) => acc + (s.valor || 0), 0);
             const totalReceitaPrevista = agendados.reduce((acc, s) => acc + (s.valor || 0), 0);
-            const totalCustoEstoque = todosProdutosCache.reduce((acc, p) => acc + ((p.qtd || 0) * (p.custo || 0)), 0);
+            
+            // Calcula o custo com base no histórico real de compras
+            const totalCustoEstoque = todosProdutosCache.reduce((acc, p) => {
+                const qtdCompradaReal = p.qtd_comprada !== undefined ? p.qtd_comprada : (p.qtd || 0);
+                return acc + (qtdCompradaReal * (p.custo || 0));
+            }, 0);
 
             const lucroLiquido = totalReceitaConcluida - totalCustoEstoque;
             const margemLucro = totalReceitaConcluida > 0 ? ((lucroLiquido / totalReceitaConcluida) * 100) : 0;
             const projecaoFutura = (totalReceitaConcluida + totalReceitaPrevista) - totalCustoEstoque;
 
-            document.getElementById('fin-faturamento-total').innerText = `R$ ${totalReceitaConcluida.toFixed(2)}`;
             document.getElementById('fin-custo-total').innerText = `R$ ${totalCustoEstoque.toFixed(2)}`;
             
             const elLucro = document.getElementById('fin-lucro-liquido');
