@@ -181,13 +181,13 @@
             color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px;
         }
 
-        .auth-input-group input, .auth-input-group select {
+        .auth-input-group input, .auth-input-group select, .auth-input-group textarea {
             width: 100%; padding: 12px 16px; border-radius: var(--radius-sm);
             border: 1.5px solid var(--border-soft); background: #FFFFFF;
             font-size: 0.92rem; color: var(--text-title); outline: none; transition: var(--transition);
         }
 
-        .auth-input-group input:focus, .auth-input-group select:focus {
+        .auth-input-group input:focus, .auth-input-group select:focus, .auth-input-group textarea:focus {
             border-color: var(--rose-300);
             box-shadow: 0 0 0 4px rgba(234, 164, 178, 0.18);
         }
@@ -609,19 +609,42 @@
 
                 <section class="panel">
                     <div class="panel-header">
-                        <div class="panel-title">📅 Todos os Agendamentos</div>
+                        <div class="panel-title">📅 Gestão de Agenda</div>
                         <div class="filter-pill-group">
+                            <button class="filter-pill-btn active" id="btn-view-lista" onclick="alternarVisaoAgenda('lista')">Ver em Lista</button>
+                            <button class="filter-pill-btn" id="btn-view-calendario" onclick="alternarVisaoAgenda('calendario')">Ver no Calendário</button>
+                        </div>
+                    </div>
+                    
+                    <!-- VISÃO LISTA -->
+                    <div id="agenda-view-lista">
+                        <div class="filter-pill-group" style="margin-bottom: 20px; display: inline-flex;">
                             <button class="filter-pill-btn active" id="btn-filtro-todos" onclick="filtrarAgenda('todos')">Todos</button>
                             <button class="filter-pill-btn" id="btn-filtro-hoje" onclick="filtrarAgenda('hoje')">Hoje</button>
                             <button class="filter-pill-btn" id="btn-filtro-semana" onclick="filtrarAgenda('semana')">Esta Semana</button>
                             <button class="filter-pill-btn" id="btn-filtro-mes" onclick="filtrarAgenda('mes')">Este Mês</button>
                         </div>
+                        <div class="table-responsive">
+                            <table>
+                                <thead><tr><th>Data/Hora</th><th>Paciente</th><th>Procedimento</th><th>Valor</th><th>Pagamento</th><th>Status</th><th>Lembrete & Ações</th></tr></thead>
+                                <tbody id="lista-agenda-completa"></tbody>
+                            </table>
+                        </div>
                     </div>
-                    <div class="table-responsive">
-                        <table>
-                            <thead><tr><th>Data/Hora</th><th>Paciente</th><th>Procedimento</th><th>Valor</th><th>Pagamento</th><th>Status</th><th>Lembrete & Ações</th></tr></thead>
-                            <tbody id="lista-agenda-completa"></tbody>
-                        </table>
+
+                    <!-- VISÃO CALENDÁRIO -->
+                    <div id="agenda-view-calendario" style="display: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <button class="btn-secondary" onclick="mudarMesCalendario(-1)">◀ Anterior</button>
+                            <h3 id="calendario-mes-atual" style="font-family: var(--font-serif); color: var(--rose-700); font-size: 1.4rem; font-weight: 700;">Dezembro 2026</h3>
+                            <button class="btn-secondary" onclick="mudarMesCalendario(1)">Próximo ▶</button>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 8px; text-align: center; font-weight: 700; font-size: 0.8rem; color: var(--text-muted);">
+                            <div>DOM</div><div>SEG</div><div>TER</div><div>QUA</div><div>QUI</div><div>SEX</div><div>SÁB</div>
+                        </div>
+                        <div id="calendario-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; min-height: 400px;">
+                            <!-- Injetado por JS -->
+                        </div>
                     </div>
                 </section>
             </main>
@@ -678,6 +701,39 @@
 
             <!-- ABA 5: FINANCEIRO & DRE COMPLETO -->
             <main id="tab-financeiro" style="display: none;">
+                
+                <section class="panel" style="margin-bottom: 20px; padding: 16px 30px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                        <div style="font-family: var(--font-serif); font-size: 1.2rem; font-weight: 700; color: var(--rose-700);">
+                            Filtro Financeiro
+                        </div>
+                        <div style="display: flex; gap: 12px; align-items: center;">
+                            <select id="filtro-fin-mes" class="form-control" style="width: auto; padding: 8px 12px; font-weight: 600;" onchange="atualizarDRE()">
+                                <option value="todos">Todo o Histórico (Geral)</option>
+                                <option value="01">Janeiro</option>
+                                <option value="02">Fevereiro</option>
+                                <option value="03">Março</option>
+                                <option value="04">Abril</option>
+                                <option value="05">Maio</option>
+                                <option value="06">Junho</option>
+                                <option value="07">Julho</option>
+                                <option value="08">Agosto</option>
+                                <option value="09">Setembro</option>
+                                <option value="10">Outubro</option>
+                                <option value="11">Novembro</option>
+                                <option value="12">Dezembro</option>
+                            </select>
+                            <select id="filtro-fin-ano" class="form-control" style="width: auto; padding: 8px 12px; font-weight: 600;" onchange="atualizarDRE()">
+                                <option value="todos">Todos os Anos</option>
+                                <option value="2024">2024</option>
+                                <option value="2025">2025</option>
+                                <option value="2026" selected>2026</option>
+                                <option value="2027">2027</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
                 <section class="metrics-grid">
                     <div class="metric-card">
                         <span class="metric-label">Receita Bruta (Entradas)</span>
@@ -687,7 +743,7 @@
                     <div class="metric-card">
                         <span class="metric-label">Despesa (Insumos Comprados)</span>
                         <div class="metric-value" id="fin-custo-total" style="color: var(--status-danger-text);">R$ 0,00</div>
-                        <div style="font-size:0.75rem; color:var(--text-light);">Total fixo investido em compras</div>
+                        <div style="font-size:0.75rem; color:var(--text-light);">Total fixo investido no período</div>
                     </div>
                     <div class="metric-card">
                         <span class="metric-label">Lucro Líquido Realizado</span>
@@ -713,12 +769,12 @@
                             <tbody>
                                 <tr class="dre-highlight">
                                     <td><strong>(+) RECEITA OPERACIONAL BRUTA</strong></td>
-                                    <td>Faturamento total com procedimentos já finalizados</td>
+                                    <td>Faturamento total com procedimentos já finalizados no período</td>
                                     <td style="color: var(--status-success-text); font-weight:700;" id="dre-receita-realizada">R$ 0,00</td>
                                 </tr>
                                 <tr>
                                     <td><strong>(-) CUSTO FIXO DE COMPRAS (INSUMOS)</strong></td>
-                                    <td>Soma do custo original pago por todos os insumos adquiridos</td>
+                                    <td>Soma do custo original pago por insumos adquiridos no período</td>
                                     <td style="color: var(--status-danger-text); font-weight:700;" id="dre-custo-insumos">- R$ 0,00</td>
                                 </tr>
                                 <tr class="dre-total">
@@ -728,12 +784,12 @@
                                 </tr>
                                 <tr>
                                     <td><strong>(+) RECEITAS PREVISTAS (A RECEBER)</strong></td>
-                                    <td>Previsão de entrada de procedimentos que ainda estão agendados</td>
+                                    <td>Previsão de entrada de procedimentos agendados no período</td>
                                     <td style="color: var(--gold-dark); font-weight:600;" id="dre-receita-prevista">+ R$ 0,00</td>
                                 </tr>
                                 <tr class="dre-highlight">
                                     <td><strong>(=) PROJEÇÃO DE RESULTADO FUTURO</strong></td>
-                                    <td>Lucro total estimado considerando todos os agendamentos pendentes</td>
+                                    <td>Lucro total estimado considerando agendamentos pendentes</td>
                                     <td id="dre-projecao-futura" style="font-weight:700;">R$ 0,00</td>
                                 </tr>
                             </tbody>
@@ -743,7 +799,7 @@
 
                 <section class="panel">
                     <div class="panel-header">
-                        <div class="panel-title"><span>💳</span> Receita por Forma de Pagamento</div>
+                        <div class="panel-title"><span>💳</span> Receita por Forma de Pagamento (No Período)</div>
                     </div>
                     <div class="metrics-grid">
                         <div class="metric-card" style="background: var(--bg-subtle);">
@@ -969,6 +1025,7 @@
         let todosPacientesCache = [];
         let todosProdutosCache = [];
         let filtroAgendaAtual = 'todos';
+        let dataCalendarioAtual = new Date();
 
         // AUTH (APENAS LOGIN)
         function fazerLogin(e) {
@@ -1028,6 +1085,9 @@
                 const map = ['resumo', 'agenda', 'clientes', 'produtos', 'financeiro'];
                 btn.classList.toggle('active', map[idx] === tabId);
             });
+            if(tabId === 'agenda' && document.getElementById('agenda-view-calendario').style.display === 'block') {
+                renderizarCalendario();
+            }
         }
 
         function iniciarOuvintesNuvem() {
@@ -1045,6 +1105,9 @@
                 renderizarServicos();
                 verificarAlertasRetorno();
                 atualizarDRE();
+                if(document.getElementById('agenda-view-calendario').style.display === 'block') {
+                    renderizarCalendario();
+                }
             });
 
             db.collection('produtos').onSnapshot(snapshot => {
@@ -1119,8 +1182,70 @@
             }
         }
 
-        function rolarParaVencimentos() {
-            document.getElementById('painel-vencimentos').scrollIntoView({ behavior: 'smooth' });
+        function rolarParaVencimentos() { document.getElementById('painel-vencimentos').scrollIntoView({ behavior: 'smooth' }); }
+
+        function alternarVisaoAgenda(visao) {
+            document.getElementById('btn-view-lista').classList.toggle('active', visao === 'lista');
+            document.getElementById('btn-view-calendario').classList.toggle('active', visao === 'calendario');
+            document.getElementById('agenda-view-lista').style.display = visao === 'lista' ? 'block' : 'none';
+            document.getElementById('agenda-view-calendario').style.display = visao === 'calendario' ? 'block' : 'none';
+            if(visao === 'calendario') renderizarCalendario();
+        }
+
+        function mudarMesCalendario(delta) {
+            dataCalendarioAtual.setMonth(dataCalendarioAtual.getMonth() + delta);
+            renderizarCalendario();
+        }
+
+        function renderizarCalendario() {
+            const ano = dataCalendarioAtual.getFullYear();
+            const mes = dataCalendarioAtual.getMonth();
+            const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            
+            document.getElementById('calendario-mes-atual').innerText = `${meses[mes]} ${ano}`;
+            
+            const primeiroDia = new Date(ano, mes, 1).getDay();
+            const ultimoDia = new Date(ano, mes + 1, 0).getDate();
+            
+            const grid = document.getElementById('calendario-grid');
+            let html = '';
+            
+            for(let i = 0; i < primeiroDia; i++) {
+                html += `<div style="background: var(--bg-subtle); border-radius: var(--radius-sm); min-height: 80px;"></div>`;
+            }
+            
+            for(let dia = 1; dia <= ultimoDia; dia++) {
+                const mesStr = String(mes + 1).padStart(2, '0');
+                const diaStr = String(dia).padStart(2, '0');
+                const dataStr = `${ano}-${mesStr}-${diaStr}`;
+                
+                const servicosDia = todosServicosCache.filter(s => s.data && s.data.startsWith(dataStr));
+                
+                let eventosHtml = '';
+                servicosDia.forEach(s => {
+                    const hora = s.data.split('T')[1] || '';
+                    const cor = s.status === 'Concluído' ? 'var(--status-success-bg)' : 'var(--status-warning-bg)';
+                    const corTexto = s.status === 'Concluído' ? 'var(--status-success-text)' : 'var(--status-warning-text)';
+                    eventosHtml += `
+                    <div onclick="abrirEditarServico('${s.id}')" style="background: ${cor}; color: ${corTexto}; font-size: 0.65rem; padding: 4px; border-radius: 4px; margin-top: 4px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${s.cliente} - ${s.procedimento}">
+                        <b>${hora}</b> ${s.cliente.split(' ')[0]}
+                    </div>`;
+                });
+
+                const hoje = new Date();
+                const isHoje = (hoje.getDate() === dia && hoje.getMonth() === mes && hoje.getFullYear() === ano);
+                const borderEstilo = isHoje ? 'border: 2px solid var(--rose-300);' : 'border: 1px solid var(--border-soft);';
+                const bgEstilo = isHoje ? 'background: #FFFDF9;' : 'background: #FFFFFF;';
+
+                html += `
+                <div style="${bgEstilo} ${borderEstilo} border-radius: var(--radius-sm); padding: 8px; min-height: 80px; display: flex; flex-direction: column;">
+                    <span style="font-weight: 700; font-size: 0.8rem; color: var(--text-muted);">${dia}</span>
+                    <div style="flex: 1; margin-top: 4px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto;">
+                        ${eventosHtml}
+                    </div>
+                </div>`;
+            }
+            grid.innerHTML = html;
         }
 
         function filtrarAgenda(tipo) {
@@ -1296,7 +1421,8 @@
                 qtd_comprada: qtdInic, // Total investido histórico
                 custo: parseFloat(document.getElementById('prod-custo').value) || 0,
                 min: parseInt(document.getElementById('prod-min').value) || 0,
-                validade: document.getElementById('prod-validade').value
+                validade: document.getElementById('prod-validade').value,
+                data_compra: new Date().toISOString().slice(0, 10) // Guardamos a data para o filtro DRE
             }).then(() => e.target.reset());
         }
 
@@ -1304,12 +1430,11 @@
             const novaQtd = Math.max(0, qtdAtual + delta);
             let dadosUpdate = { qtd: novaQtd };
             
-            // Se clicou em "+", assumimos que ela comprou mais. Aumenta o investido histórico.
+            // Se clicou em "+", comprou mais. Aumenta o investido histórico.
             if (delta > 0) {
                 dadosUpdate.qtd_comprada = qtdCompradaAtual + delta;
             }
             
-            // Se clicou em "-", apenas consome físico. O investido não desce.
             db.collection('produtos').doc(id).update(dadosUpdate);
         }
 
@@ -1579,7 +1704,7 @@
 
             if (filtroAgendaAtual === 'hoje') {
                 const hojeStr = hoje.toISOString().slice(0, 10);
-                listaFiltrada = listaFiltrada.filter(s => s.data.startsWith(hojeStr));
+                listaFiltrada = listaFiltrada.filter(s => s.data && s.data.startsWith(hojeStr));
             } else if (filtroAgendaAtual === 'semana') {
                 const inicioSemana = new Date(hoje);
                 inicioSemana.setDate(hoje.getDate() - hoje.getDay());
@@ -1587,6 +1712,7 @@
                 fimSemana.setDate(inicioSemana.getDate() + 6);
                 
                 listaFiltrada = listaFiltrada.filter(s => {
+                    if(!s.data) return false;
                     const d = new Date(s.data);
                     return d >= inicioSemana && d <= fimSemana;
                 });
@@ -1594,6 +1720,7 @@
                 const mesAtual = hoje.getMonth();
                 const anoAtual = hoje.getFullYear();
                 listaFiltrada = listaFiltrada.filter(s => {
+                    if(!s.data) return false;
                     const d = new Date(s.data);
                     return d.getMonth() === mesAtual && d.getFullYear() === anoAtual;
                 });
@@ -1605,9 +1732,10 @@
                 ? `<tr><td colspan="7" style="text-align:center; padding:24px; color:var(--text-muted);">Nenhum agendamento encontrado para este filtro.</td></tr>`
                 : listaFiltrada.map(s => {
                     const linkLembrete = gerarLinkLembrete(s);
+                    const horaFormatada = s.data ? s.data.replace('T', ' às ') : '-';
                     return `
                     <tr>
-                        <td>${s.data.replace('T', ' às ')}</td>
+                        <td>${horaFormatada}</td>
                         <td><strong>${s.cliente}</strong></td>
                         <td>${s.procedimento}</td>
                         <td>R$ ${(s.valor || 0).toFixed(2)}</td>
@@ -1626,7 +1754,7 @@
 
             document.getElementById('resumo-ultimos-servicos').innerHTML = todosServicosCache.slice(-5).reverse().map(s => `
                 <tr>
-                    <td>${s.data.replace('T', ' às ')}</td>
+                    <td>${s.data ? s.data.replace('T', ' às ') : '-'}</td>
                     <td><strong>${s.cliente}</strong></td>
                     <td>${s.procedimento}</td>
                     <td>R$ ${(s.valor || 0).toFixed(2)}</td>
@@ -1639,23 +1767,6 @@
                     </td>
                 </tr>
             `).join('');
-
-            const concluidos = todosServicosCache.filter(s => s.status === 'Concluído');
-            const total = concluidos.reduce((acc, s) => acc + (s.valor || 0), 0);
-            const previsto = todosServicosCache.filter(s => s.status === 'Agendado').reduce((acc, s) => acc + (s.valor || 0), 0);
-            
-            document.getElementById('fin-faturamento-total').innerText = `R$ ${total.toFixed(2)}`;
-            document.getElementById('fin-faturamento-previsto').innerText = `R$ ${previsto.toFixed(2)}`;
-
-            const totPix = concluidos.filter(s => s.pagamento === 'Pix').reduce((acc, s) => acc + (s.valor || 0), 0);
-            const totCredito = concluidos.filter(s => s.pagamento === 'Cartão de Crédito').reduce((acc, s) => acc + (s.valor || 0), 0);
-            const totDebito = concluidos.filter(s => s.pagamento === 'Cartão de Débito').reduce((acc, s) => acc + (s.valor || 0), 0);
-            const totDinheiro = concluidos.filter(s => s.pagamento === 'Dinheiro').reduce((acc, s) => acc + (s.valor || 0), 0);
-
-            document.getElementById('fin-pix').innerText = `R$ ${totPix.toFixed(2)}`;
-            document.getElementById('fin-credito').innerText = `R$ ${totCredito.toFixed(2)}`;
-            document.getElementById('fin-debito').innerText = `R$ ${totDebito.toFixed(2)}`;
-            document.getElementById('fin-dinheiro').innerText = `R$ ${totDinheiro.toFixed(2)}`;
         }
 
         function renderizarProdutos(lista) {
@@ -1664,7 +1775,7 @@
 
             document.getElementById('lista-produtos-tabela').innerHTML = lista.map(p => {
                 const custoUnit = p.custo || 0;
-                // Busca o qtd_comprada se existir, senão cai na qtd normal para manter retrocompatibilidade
+                // Busca o qtd_comprada se existir, senao cai na qtd normal para manter retrocompatibilidade
                 const qtdCompradaReal = p.qtd_comprada !== undefined ? p.qtd_comprada : (p.qtd || 0);
                 const totalInvestido = qtdCompradaReal * custoUnit;
 
@@ -1687,14 +1798,37 @@
         }
 
         function atualizarDRE() {
-            const concluidos = todosServicosCache.filter(s => s.status === 'Concluído');
-            const agendados = todosServicosCache.filter(s => s.status === 'Agendado');
+            const mesFiltro = document.getElementById('filtro-fin-mes').value;
+            const anoFiltro = document.getElementById('filtro-fin-ano').value;
+
+            const filtrarPorPeriodo = (dataString) => {
+                if(!dataString) return false;
+                // Formato assumido yyyy-mm-dd
+                const partes = dataString.split('-');
+                if(partes.length < 2) return false;
+                const anoData = partes[0];
+                const mesData = partes[1];
+
+                const passaMes = (mesFiltro === 'todos' || mesFiltro === mesData);
+                const passaAno = (anoFiltro === 'todos' || anoFiltro === anoData);
+
+                return passaMes && passaAno;
+            };
+
+            const concluidos = todosServicosCache.filter(s => s.status === 'Concluído' && filtrarPorPeriodo(s.data));
+            const agendados = todosServicosCache.filter(s => s.status === 'Agendado' && filtrarPorPeriodo(s.data));
 
             const totalReceitaConcluida = concluidos.reduce((acc, s) => acc + (s.valor || 0), 0);
             const totalReceitaPrevista = agendados.reduce((acc, s) => acc + (s.valor || 0), 0);
             
-            // Calcula o custo com base no histórico real de compras
-            const totalCustoEstoque = todosProdutosCache.reduce((acc, p) => {
+            // Filtra o custo do estoque baseado na data de compra
+            const produtosFiltrados = todosProdutosCache.filter(p => {
+                // Se foi criado antes e nao tem data, considera em "todos" ou "2026"
+                if(!p.data_compra) return (anoFiltro === 'todos' || anoFiltro === '2026'); 
+                return filtrarPorPeriodo(p.data_compra);
+            });
+
+            const totalCustoEstoque = produtosFiltrados.reduce((acc, p) => {
                 const qtdCompradaReal = p.qtd_comprada !== undefined ? p.qtd_comprada : (p.qtd || 0);
                 return acc + (qtdCompradaReal * (p.custo || 0));
             }, 0);
@@ -1703,6 +1837,7 @@
             const margemLucro = totalReceitaConcluida > 0 ? ((lucroLiquido / totalReceitaConcluida) * 100) : 0;
             const projecaoFutura = (totalReceitaConcluida + totalReceitaPrevista) - totalCustoEstoque;
 
+            document.getElementById('fin-faturamento-total').innerText = `R$ ${totalReceitaConcluida.toFixed(2)}`;
             document.getElementById('fin-custo-total').innerText = `R$ ${totalCustoEstoque.toFixed(2)}`;
             
             const elLucro = document.getElementById('fin-lucro-liquido');
@@ -1725,6 +1860,17 @@
             const elDreProjecao = document.getElementById('dre-projecao-futura');
             elDreProjecao.innerText = `R$ ${projecaoFutura.toFixed(2)}`;
             elDreProjecao.style.color = projecaoFutura >= 0 ? 'var(--status-success-text)' : 'var(--status-danger-text)';
+
+            // Calculo de recebimentos por forma de pagamento no período selecionado
+            const totPix = concluidos.filter(s => s.pagamento === 'Pix').reduce((acc, s) => acc + (s.valor || 0), 0);
+            const totCredito = concluidos.filter(s => s.pagamento === 'Cartão de Crédito').reduce((acc, s) => acc + (s.valor || 0), 0);
+            const totDebito = concluidos.filter(s => s.pagamento === 'Cartão de Débito').reduce((acc, s) => acc + (s.valor || 0), 0);
+            const totDinheiro = concluidos.filter(s => s.pagamento === 'Dinheiro').reduce((acc, s) => acc + (s.valor || 0), 0);
+
+            document.getElementById('fin-pix').innerText = `R$ ${totPix.toFixed(2)}`;
+            document.getElementById('fin-credito').innerText = `R$ ${totCredito.toFixed(2)}`;
+            document.getElementById('fin-debito').innerText = `R$ ${totDebito.toFixed(2)}`;
+            document.getElementById('fin-dinheiro').innerText = `R$ ${totDinheiro.toFixed(2)}`;
         }
     </script>
 </body>
