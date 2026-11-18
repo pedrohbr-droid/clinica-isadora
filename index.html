@@ -1031,6 +1031,10 @@
                         <input type="number" step="0.01" id="edit-prod-custo" class="form-control" required>
                     </div>
                     <div class="auth-input-group">
+                        <label>Valor Total Investido (R$)</label>
+                        <input type="number" step="0.01" id="edit-prod-custo-total" class="form-control" required>
+                    </div>
+                    <div class="auth-input-group">
                         <label>Estoque Mínimo</label>
                         <input type="number" id="edit-prod-min" class="form-control" required>
                     </div>
@@ -1461,24 +1465,27 @@
         function adicionarProduto(e) {
             e.preventDefault();
             const qtdInic = parseInt(document.getElementById('prod-qtd').value) || 0;
+            const custoUnit = parseFloat(document.getElementById('prod-custo').value) || 0;
             db.collection('produtos').add({
                 nome: document.getElementById('prod-nome').value.trim(),
                 qtd: qtdInic, // Estoque atual
                 qtd_comprada: qtdInic, // Total investido histórico
-                custo: parseFloat(document.getElementById('prod-custo').value) || 0,
+                custo: custoUnit,
+                custo_total: qtdInic * custoUnit, // Salva o total diretamente
                 min: parseInt(document.getElementById('prod-min').value) || 0,
                 validade: document.getElementById('prod-validade').value,
                 data_compra: new Date().toISOString().slice(0, 10) // Guardamos a data para o filtro DRE
             }).then(() => e.target.reset());
         }
 
-        function alterarQuantidadeProduto(id, delta, qtdAtual, qtdCompradaAtual) {
+        function alterarQuantidadeProduto(id, delta, qtdAtual, qtdCompradaAtual, custoUnit, custoTotalAtual) {
             const novaQtd = Math.max(0, qtdAtual + delta);
             let dadosUpdate = { qtd: novaQtd };
             
             // Se clicou em "+", comprou mais. Aumenta o investido histórico.
             if (delta > 0) {
                 dadosUpdate.qtd_comprada = qtdCompradaAtual + delta;
+                dadosUpdate.custo_total = custoTotalAtual + custoUnit; // Soma um custo unitário ao total
             }
             
             db.collection('produtos').doc(id).update(dadosUpdate);
@@ -1494,11 +1501,16 @@
         function abrirEditarProduto(id) {
             const p = todosProdutosCache.find(prod => prod.id === id);
             if (!p) return;
+            
+            const qtdComp = p.qtd_comprada !== undefined ? p.qtd_comprada : (p.qtd || 0);
+            const totalInv = p.custo_total !== undefined ? p.custo_total : (qtdComp * (p.custo || 0));
+
             document.getElementById('edit-prod-id').value = id;
             document.getElementById('edit-prod-nome').value = p.nome || '';
             document.getElementById('edit-prod-qtd').value = p.qtd || 0;
-            document.getElementById('edit-prod-qtd-comprada').value = p.qtd_comprada !== undefined ? p.qtd_comprada : (p.qtd || 0);
+            document.getElementById('edit-prod-qtd-comprada').value = qtdComp;
             document.getElementById('edit-prod-custo').value = p.custo || 0;
+            document.getElementById('edit-prod-custo-total').value = parseFloat(totalInv).toFixed(2); // Injeta o total exato
             document.getElementById('edit-prod-min').value = p.min || 0;
             document.getElementById('edit-prod-validade').value = p.validade || '';
             document.getElementById('modal-editar-produto').style.display = 'flex';
@@ -1516,6 +1528,7 @@
                 qtd: parseInt(document.getElementById('edit-prod-qtd').value) || 0,
                 qtd_comprada: parseInt(document.getElementById('edit-prod-qtd-comprada').value) || 0,
                 custo: parseFloat(document.getElementById('edit-prod-custo').value) || 0,
+                custo_total: parseFloat(document.getElementById('edit-prod-custo-total').value) || 0, // Salva o total modificado
                 min: parseInt(document.getElementById('edit-prod-min').value) || 0,
                 validade: document.getElementById('edit-prod-validade').value
             }).then(() => { 
@@ -1856,15 +1869,17 @@
                 const custoUnit = p.custo || 0;
                 // Busca o qtd_comprada se existir, senao cai na qtd normal para manter retrocompatibilidade
                 const qtdCompradaReal = p.qtd_comprada !== undefined ? p.qtd_comprada : (p.qtd || 0);
-                const totalInvestido = qtdCompradaReal * custoUnit;
+                
+                // Agora renderizamos o Total Investido lendo diretamente do banco (ou fallback se o produto for antigo)
+                const totalInvestido = p.custo_total !== undefined ? p.custo_total : (qtdCompradaReal * custoUnit);
 
                 return `
                 <tr>
                     <td><strong>${p.nome}</strong></td>
                     <td>
-                        <button class="btn-secondary" style="padding:2px 8px;" onclick="alterarQuantidadeProduto('${p.id}', -1, ${p.qtd}, ${qtdCompradaReal})">-</button>
+                        <button class="btn-secondary" style="padding:2px 8px;" onclick="alterarQuantidadeProduto('${p.id}', -1, ${p.qtd}, ${qtdCompradaReal}, ${custoUnit}, ${totalInvestido})">-</button>
                         <span style="font-weight:700; margin:0 8px;">${p.qtd}</span>
-                        <button class="btn-secondary" style="padding:2px 8px;" onclick="alterarQuantidadeProduto('${p.id}', 1, ${p.qtd}, ${qtdCompradaReal})">+</button>
+                        <button class="btn-secondary" style="padding:2px 8px;" onclick="alterarQuantidadeProduto('${p.id}', 1, ${p.qtd}, ${qtdCompradaReal}, ${custoUnit}, ${totalInvestido})">+</button>
                     </td>
                     <td style="color:var(--text-muted);">R$ ${custoUnit.toFixed(2)}</td>
                     <td style="font-weight:700; color:var(--rose-700);">R$ ${totalInvestido.toFixed(2)}</td>
@@ -1912,9 +1927,11 @@
                 return filtrarPorPeriodo(p.data_compra);
             });
 
+            // Somatório usa diretamente o custo_total do banco de dados 
             const totalCustoEstoque = produtosFiltrados.reduce((acc, p) => {
                 const qtdCompradaReal = p.qtd_comprada !== undefined ? p.qtd_comprada : (p.qtd || 0);
-                return acc + (qtdCompradaReal * (p.custo || 0));
+                const investido = p.custo_total !== undefined ? p.custo_total : (qtdCompradaReal * (p.custo || 0));
+                return acc + investido;
             }, 0);
 
             const lucroLiquido = totalReceitaConcluida - totalCustoEstoque;
